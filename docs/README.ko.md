@@ -2,7 +2,7 @@
 
 [Astro](https://astro.build)로 구축된 정적 블로그 템플릿입니다.
 
-[**🖥️미리보기 (Vercel)**](https://fuwari.vercel.app)
+[**🖥️미리보기 (Vercel)**](https://nigmaz.github.io)
 
 ![Preview Image](https://raw.githubusercontent.com/saicaca/resource/main/fuwari/home.png)
 
@@ -51,9 +51,9 @@ lang: jp      # 게시물의 언어가 `config.ts`의 사이트 언어와 다른
 ```
 ## 🧩 마크다운 확장 구문
 Astro의 기본 [GitHub Flavored Markdown](https://github.github.com/gfm/) 지원 외에도 몇 가지 추가적인 마크다운 기능이 포함되어 있습니다.
-- Admonitions ([미리보기 및 사용법](https://fuwari.vercel.app/posts/markdown-extended/#admonitions))
-- GitHub 저장소 카드 ([미리보기 및 사용법](https://fuwari.vercel.app/posts/markdown-extended/#github-repository-cards))
-- Expressive Code를 사용한 향상된 코드 블록 ([미리보기](https://fuwari.vercel.app/posts/expressive-code/) / [문서](https://expressive-code.com/))
+- Admonitions ([미리보기 및 사용법](https://nigmaz.github.io/posts/markdown-extended/#admonitions))
+- GitHub 저장소 카드 ([미리보기 및 사용법](https://nigmaz.github.io/posts/markdown-extended/#github-repository-cards))
+- Expressive Code를 사용한 향상된 코드 블록 ([미리보기](https://nigmaz.github.io/posts/expressive-code/) / [문서](https://expressive-code.com/))
 
 
 
