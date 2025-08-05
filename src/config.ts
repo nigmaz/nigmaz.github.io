@@ -9,7 +9,7 @@ import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
 	title: "nigmaz",
-	subtitle: "[ >_$ ]",
+	subtitle: "Blog [ >_$ ]",
 	lang: "en", // Language code, e.g. 'en', 'zh-CN', 'ja', etc.
 	themeColor: {
 		hue: 145, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
