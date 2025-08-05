@@ -8,12 +8,12 @@ import type {
 import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
-	title: "Nigmaz",
-	subtitle: "Blog >_$",
+	title: "nigmaz",
+	subtitle: "[ >_$ ]",
 	lang: "en", // Language code, e.g. 'en', 'zh-CN', 'ja', etc.
 	themeColor: {
-		hue: 250, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
-		fixed: false, // Hide the theme color picker for visitors
+		hue: 145, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
+		fixed: true, // Hide the theme color picker for visitors
 	},
 	banner: {
 		enable: true,
@@ -55,25 +55,25 @@ export const navBarConfig: NavBarConfig = {
 
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/demo-avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-	name: "Lorem Ipsum",
-	bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+	name: "nigmaz",
+	bio: "My love is Exploit Development, Reverse Engineering, Malware Analysis, and Bug Hunting...",
 	links: [
 		{
 			name: "Twitter",
 			icon: "fa6-brands:twitter", // Visit https://icones.js.org/ for icon codes
 			// You will need to install the corresponding icon set if it's not already included
 			// `pnpm add @iconify-json/<icon-set-name>`
-			url: "https://twitter.com",
+			url: "https://x.com/HuyTrnTrng1",
 		},
 		{
 			name: "GitHub",
 			icon: "fa6-brands:github",
-			url: "https://github.com/saicaca/fuwari",
+			url: "https://github.com/nigmaz",
 		},
 		{
 			name: 'LinkedIn',
 			icon: 'fa6-brands:linkedin',
-			url: 'https://linkedin.com/in/tvdat20004',
+			url: 'https://www.linkedin.com/in/huy-tr%E1%BA%A7n-tr%E1%BB%8Dng-423b1120b/',
 		}
 	],
 };
