@@ -18,7 +18,7 @@ export const siteConfig: SiteConfig = {
 	banner: {
 		enable: true,
 		// src: "assets/images/demo-banner.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-		src: "assets/images/minions-heart_gif.gif",
+		src: "assets/images/banner.png",
 		// position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
 		position: "bottom",
 		credit: {
@@ -55,9 +55,9 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/demo-avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	avatar: "assets/images/avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "nigmaz",
-	bio: "My love is Exploit Development, Reverse Engineering, Malware Analysis, and Bug Hunting...",
+	bio: "Exploit Development | Reverse Engineering | Malware Analysis | ZeroDay Hunting",
 	links: [
 		{
 			name: "Twitter",
