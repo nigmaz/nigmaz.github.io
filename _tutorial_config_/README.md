@@ -4,7 +4,7 @@
 
 - Format to Struct Tree Github : https://gitingest.com/ 
 
-## 1. Step by step Install :
+## A. Step by step Install :
 
 1. Clone repo sử dụng make a copy sau đó git clone về máy để sửa .
 
@@ -65,11 +65,23 @@ lang: jp      # Set only if the post's language differs from the site's language
 ---
 ```
 
-## 2. Resource References :
+## B. Resource References :
 
 - https://docs.astro.build/en/guides/deploy/github
 
 - https://github.com/hkbertoson/github-pages
+
+BLOG Tham khảo :
+
+- https://tvdat20004.github.io
+
+- https://robbert1978.github.io
+
+Mẫu Template :
+
+- https://fuwari.vercel.app
+
+- https://github.com/saicaca/fuwari/tree/main
 
 ---
 
