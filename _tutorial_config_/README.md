@@ -2,7 +2,7 @@
 
 > Step by step build guide for your blog .
 
-- Format to Struct Tree Github : https://gitingest.com/ 
+- Format to Struct Tree Github : https://gitingest.com/
 
 ## A. Step by step Install :
 
@@ -33,7 +33,7 @@ pnpm dev 		# chạy thử tại http://localhost:4321
 ```
 
 4. Config 2 File :
-  
+
 - `astro.config.mjs`
 
 ```bash
@@ -87,5 +87,4 @@ Mẫu Template :
 
 Done!
 
-`">_ nigmaz"`.
-
+`">_$ nigmaz"`.
