@@ -20,7 +20,7 @@ export const siteConfig: SiteConfig = {
 		// src: "assets/images/demo-banner.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 		src: "assets/images/banner.png",
 		// position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
-		position: "bottom",
+		position: "top",
 		credit: {
 			enable: false, // Display the credit text of the banner image
 			text: "", // Credit text to be displayed
@@ -57,7 +57,7 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "nigmaz",
-	bio: "Pwnable Exploit | Reverse Engineering | Malware Analysis | ZeroDay Research and Development",
+	bio: "Pwnables | Reverse Engineering | Malware Analysis | Vulnerability Research and Exploit Development",
 	links: [
 		{
 			name: "Twitter",
