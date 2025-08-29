@@ -153,18 +153,42 @@ export default defineConfig({
 			],
 		],
 	},
+	// vite: {
+	// 	build: {
+	// 		rollupOptions: {
+	// 			onwarn(warning, warn) {
+	// 				// temporarily suppress this warning
+	// 				if (
+	// 					warning.message.includes("is dynamically imported by") &&
+	// 					warning.message.includes("but also statically imported by")
+	// 				) {
+	// 					return;
+	// 				}
+	// 				warn(warning);
+	// 			},
+	// 		},
+	// 	},
+	// },
 	vite: {
+		assetsInclude: [
+		'**/*.py',
+		'**/*.zip',
+		'**/*.7z',
+		'**/*.xz',
+		'**/*.bin',
+		'**/*.dmp',
+		'**/*.hex'
+		],
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {
-					// temporarily suppress this warning
-					if (
-						warning.message.includes("is dynamically imported by") &&
-						warning.message.includes("but also statically imported by")
-					) {
-						return;
-					}
-					warn(warning);
+				if (
+					warning.message.includes("is dynamically imported by") &&
+					warning.message.includes("but also statically imported by")
+				) {
+					return;
+				}
+				warn(warning);
 				},
 			},
 		},
