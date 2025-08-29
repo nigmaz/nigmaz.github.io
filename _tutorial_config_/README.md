@@ -73,6 +73,8 @@ lang: jp      # Set only if the post's language differs from the site's language
 
 [+] `Layout.astro` : Cấu trúc layout cho trang blog .
 
+- "D:\_GITHUB\nigmaz.github.io\public\favicon"
+
 - Chỉnh sửa file "config.ts" đoạn này để chỉnh hiển thị ảnh banner vào chính giữa hay lên trên.
 
 ```ts
