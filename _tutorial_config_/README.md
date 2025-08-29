@@ -148,6 +148,53 @@ export const siteConfig: SiteConfig = {
 </style>
 ```   
 
+- Thêm vào "astro.config.mjs" để không thực hiện build các file trong black-list 
+
+```mjs
+export default defineConfig({
+  // ...
+-  vite: {
+-    build: {
+-      rollupOptions: {
+-        onwarn(warning, warn) {
+-          if (
+-            warning.message.includes("is dynamically imported by") &&
+-            warning.message.includes("but also statically imported by")
+-          ) {
+-            return;
+-          }
+-          warn(warning);
+-        },
+-      },
+-    },
+-  },
++  vite: {
++    assetsInclude: [
++      '**/*.py',
++      '**/*.zip',
++      '**/*.7z',
++      '**/*.xz',
++      '**/*.bin',
++      '**/*.dmp',
++      '**/*.hex'
++    ],
++    build: {
++      rollupOptions: {
++        onwarn(warning, warn) {
++          if (
++            warning.message.includes("is dynamically imported by") &&
++            warning.message.includes("but also statically imported by")
++          ) {
++            return;
++          }
++          warn(warning);
++        },
++      },
++    },
++  },
+});
+```
+
 ## C. Resource References :
 
 - https://docs.astro.build/en/guides/deploy/github
