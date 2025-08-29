@@ -48,7 +48,7 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.About,
 		{
 			name: "GitHub",
-			url: "https://github.com/nigmaz/nigmaz.github.io", // Internal links should not include the base path, as it is automatically added
+			url: "https://github.com/nigmaz", // Internal links should not include the base path, as it is automatically added
 			external: true, // Show an external link icon and will open in a new tab
 		},
 	],
@@ -57,7 +57,8 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "nigmaz",
-	bio: "Pwnable CTFs | Reverse Engineering | Malware Analysis | Vulnerability Research and Exploit Development",
+	bio: "Malware Analysis | Vulnerability Research and Exploit Development",
+	// bio: "Pwnable CTFs | Reverse Engineering | Malware Analysis | Vulnerability Research and Exploit Development",
 	links: [
 		{
 			name: "Twitter",
