@@ -65,7 +65,64 @@ lang: jp      # Set only if the post's language differs from the site's language
 ---
 ```
 
-## B. Resource References :
+## B. Note Config :
+
+[+] `astro.config.mjs` : cấu hình cho trang web .
+
+[+] `config.ts` : Thông tin cấu hình hiển thị của Blog Page .
+
+[+] `Layout.astro` : Cấu trúc layout cho trang blog .
+
+- Chỉnh sửa file "config.ts" đoạn này để chỉnh hiển thị ảnh banner vào chính giữa hay lên trên.
+
+```ts
+export const siteConfig: SiteConfig = {
+	title: "nigmaz",
+	subtitle: "Blog [ >_$ ]",
+	lang: "en", // Language code, e.g. 'en', 'zh-CN', 'ja', etc.
+	themeColor: {
+		hue: 145, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
+		fixed: true, // Hide the theme color picker for visitors
+	},
+	banner: {
+		enable: true,
+		// src: "assets/images/demo-banner.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+		src: "assets/images/banner.png",
+		// position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
+		position: "bottom",
+		credit: {
+			enable: false, // Display the credit text of the banner image
+			text: "", // Credit text to be displayed
+			url: "", // (Optional) URL link to the original artwork or artist's page
+		},
+	},
+	toc: {
+		enable: true, // Display the table of contents on the right side of the post
+		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
+	},
+	favicon: [
+		// Leave this array empty to use the default favicon
+		// {
+		//   src: '/favicon/icon.png',    // Path of the favicon, relative to the /public directory
+		//   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
+		//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+		// }
+	],
+};
+```
+
+- Chỉnh sửa file "Layout.astro" đoạn này để chỉnh hiển thị ảnh banner vào chính giữa hay lên trên.
+
+```css
+	.enable-banner #banner {
+		@apply h-[var(--banner-height-home)] translate-y-[var(--bannerOffset)]
+	}
+	.enable-banner.is-home #main-grid {
+		@apply translate-y-[var(--banner-height-extend)];
+	}  
+```   
+
+## C. Resource References :
 
 - https://docs.astro.build/en/guides/deploy/github
 
