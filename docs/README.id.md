@@ -2,7 +2,7 @@
 
 Template blog statis yang dibangun dengan [Astro](https://astro.build).
 
-[**🖥️ Demo Langsung (Vercel)**](https://nigmaz.github.io)
+[**🖥️ Demo Langsung (Vercel)**](https://fuwari.vercel.app)
 
 ![Gambar Pratinjau](https://raw.githubusercontent.com/saicaca/resource/main/fuwari/home.png)
 
@@ -73,9 +73,9 @@ lang: id   # Isi hanya jika bahasa postingan berbeda dari bahasa default di `con
 
 Selain dukungan default Astro untuk [GitHub Flavored Markdown](https://github.github.com/gfm/), terdapat beberapa fitur tambahan:
 
-- Admonisi ([Pratinjau & Cara Pakai](https://nigmaz.github.io/posts/markdown-extended/#admonitions))
-- Kartu repositori GitHub ([Pratinjau & Cara Pakai](https://nigmaz.github.io/posts/markdown-extended/#github-repository-cards))
-- Kode blok ekspresif lewat Expressive Code ([Pratinjau](https://nigmaz.github.io/posts/expressive-code/) / [Dokumentasi](https://expressive-code.com/))
+- Admonisi ([Pratinjau & Cara Pakai](https://fuwari.vercel.app/posts/markdown-extended/#admonitions))
+- Kartu repositori GitHub ([Pratinjau & Cara Pakai](https://fuwari.vercel.app/posts/markdown-extended/#github-repository-cards))
+- Kode blok ekspresif lewat Expressive Code ([Pratinjau](https://fuwari.vercel.app/posts/expressive-code/) / [Dokumentasi](https://expressive-code.com/))
 
 ## ⚡ Perintah
 
