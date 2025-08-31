@@ -67,13 +67,15 @@ lang: jp      # Set only if the post's language differs from the site's language
 
 ## B. Note Config :
 
+[+] Image: Pixel art hoặc Mosaic art .
+
 [+] `astro.config.mjs` : cấu hình cho trang web .
 
 [+] `config.ts` : Thông tin cấu hình hiển thị của Blog Page .
 
 [+] `Layout.astro` : Cấu trúc layout cho trang blog .
 
-- "D:\_GITHUB\nigmaz.github.io\public\favicon"
+- "D:\_GITHUB\nigmaz.github.io\public\favicon" .
 
 - Chỉnh sửa file "config.ts" đoạn này để chỉnh hiển thị ảnh banner vào chính giữa hay lên trên.
 
