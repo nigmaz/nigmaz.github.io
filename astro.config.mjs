@@ -171,6 +171,10 @@ export default defineConfig({
 	// },
 	vite: {
 		assetsInclude: [
+		'**/*.c',
+		'**/*.cpp',
+		'**/*.h',
+		'**/*.hpp',	
 		'**/*.py',
 		'**/*.zip',
 		'**/*.7z',
