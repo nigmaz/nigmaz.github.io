@@ -8,4 +8,4 @@ This is the Blog by [nigmaz](https://github.com/nigmaz).
 > - Pwnable CTFs
 > - Reverse Engineering
 > - Malware Analysis
-> - Research & Development (Exploit)
+> - Research & Development (Exploitation)
