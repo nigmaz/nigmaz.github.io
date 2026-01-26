@@ -9,7 +9,7 @@
 1. Clone repo sử dụng make a copy sau đó git clone về máy để sửa .
 
 ```plaintext
-Dùng nút “Use this template”
+Dùng nút "Use this template"
 ```
 
 2. Cài Nodejs (npm).
@@ -74,6 +74,8 @@ lang: jp      # Set only if the post's language differs from the site's language
 [+] `config.ts` : Thông tin cấu hình hiển thị của Blog Page .
 
 [+] `Layout.astro` : Cấu trúc layout cho trang blog .
+
+- "src/constants/constants.ts" là file chưa giá trị define cho theme mặc định khi vào Blog .
 
 - "D:\_GITHUB\nigmaz.github.io\public\favicon" .
 
