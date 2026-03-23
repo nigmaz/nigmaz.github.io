@@ -28,3 +28,8 @@ yarn.lock
 
 # find . -type f -size +50M
 .gdb_history*
+
+# src\content\posts
+
+## posts 1
+src/content/posts/2024-vcs-passport-re03/Archived/
