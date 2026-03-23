@@ -9,7 +9,7 @@ draft: false
 lang: ""
 ---
 
-> Đây là challenge Rev 03 của VCSpassport 2024 - một kỳ thi tuyển intern bằng CTF và một vài đánh giá khác. Mục tiêu của thử thách này là "Tìm địa chỉ C&C domain của mã độc", sau đây là một báo cáo ngắn được tổng hợp bằng ChatGPT đối với các NOTE trong quá trình phân tích của mình.
+> Đây là challenge Rev 03 của VCSpassport 2024 - một kỳ thi tuyển Intern của Viettel-Cyber-Security bằng CTF kèm theo một vài đánh giá khác. Mục tiêu của thử thách này là "Tìm địa chỉ C&C domain của mã độc", sau đây là một báo cáo ngắn được tổng hợp bằng ChatGPT đối với các NOTE trong quá trình phân tích của mình.
 
 ![readme.png](./images/readme.png)
 
@@ -554,7 +554,7 @@ portal[.]tandanssc[.]com
 
 ![alt text](./images/image.png)
 
-- Vị trí xác định được C2 khi DEBUG - check qua file dump code C khi debug chương trình [colorui_dll.c](./colorui_dll.c):
+- Vị trí xác định được C2 khi DEBUG - check qua file dump code C khi debug chương trình colorui_dll.c khi debug.
 
 ![alt text](./images/image-1.png)
 
