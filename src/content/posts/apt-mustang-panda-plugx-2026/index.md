@@ -1057,7 +1057,7 @@ Mẫu này thể hiện một chain PlugX nhiều lớp, trong đó từng thàn
 
 Trong quá trình phân tích, mình cũng xây dựng một script extractor riêng cho chain này: `plx_config_extractor.py`. Script nhận trực tiếp `AVKTray.dat`, XOR-decode payload với key được truyền vào, trích xuất config blob từ `final_payload`, RC4-decode bằng key trong blob, sau đó XOR-decode từng UTF-16LE field để in ra config JSON. Flow này được mô tả ngay trong script: `AVKTray.dat -> XOR decode final_payload -> read encoded config blob -> RC4 first-stage decode -> XOR UTF-16LE field decode -> print config JSON`
 
-- File Python Extractor: [plx_config_extractor.py](./archived/plx_config_extractor.py).
+- File Python Extractor: [plx_config_extractor.py](https://github.com/nigmaz/nigmaz.github.io/blob/main/src/content/posts/apt-mustang-panda-plugx-2026/archived/plx_config_extractor.py).
 
 Script này có thể dùng để đối chiếu nhanh các mẫu PlugX/AVKTray khác có logic tương tự. Nếu sample mới vẫn giữ cấu trúc gần giống - ví dụ payload nằm trong `.dat` sau offset cố định, có config blob trong decoded payload, dùng RC4 + per-field XOR - thì chỉ cần điều chỉnh các constant như offset, size hoặc XOR key là có thể kiểm tra config, C2, mutex, install path và marker của biến thể mới.
 
