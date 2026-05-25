@@ -251,7 +251,7 @@ Vùng nhớ được cấp phát với kích thước `SizeOfImage + 0x03C00000`
 
 Sau khi cấp phát, loader thực hiện các bước manual mapping tiêu chuẩn: copy section, resolve import, áp dụng relocation với delta `mapped_base - OptionalHeader.ImageBase`, sau đó set lại memory protection cho từng section dựa trên `IMAGE_SECTION_HEADER.Characteristics`.
 
-Khi quá trình map hoàn tất, payload flush instruction cache và gọi entry point hai lần ( DllEntryPoint(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved) ):
+Khi quá trình map hoàn tất, payload flush instruction cache và gọi entry point hai lần ( `DllEntryPoint(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)` ):
 
 ![alt text](./images/image-13.png)
 
@@ -896,115 +896,219 @@ Nếu 5 byte đầu của `SetUnhandledExceptionFilter` bị thay bằng JMP ins
 
 ---
 
-### XIII.3. YARA hint
+### XIII.3. YARA rule
 
-Rule dưới đây chỉ nên xem là hunting hint, không phải production rule hoàn chỉnh. Lý do là một số artifact như mutex, C2, install path chỉ xuất hiện rõ sau khi payload đã được giải mã hoặc dump từ memory.
+Các rule bên dưới chỉ nên được xem là **hunting hint**, không phải production rule hoàn chỉnh. Lý do là các artifact khác nhau sẽ xuất hiện ở những giai đoạn khác nhau trong chuỗi thực thi PlugX/AVKTray. Ví dụ, pattern XOR `0xE8/0xAD` thuộc về logic decode suffix tên file trong `Avk.dll`, trong khi các artifact như mutex, C2 domain, install path và RC4 key chỉ xuất hiện rõ sau khi payload hoặc config đã được giải mã hoặc dump từ memory.
+
+Vì vậy, các rule được tách thành ba nhóm mục tiêu hunting riêng biệt:
+
+```text
+Avk.dll trên disk / trong memory:
+    Phát hiện suffix "\AVKTray.dat" bị obfuscate bằng XOR 0xE8/0xAD.
+
+Raw AVKTray.dat:
+    Phát hiện cấu trúc container được XOR bằng 0x63 tại offset 0x0D.
+
+Memory dump / decoded payload / decoded config:
+    Phát hiện các artifact plaintext của runtime config như C2, mutex, install path và RC4 key.
+```
+
+---
+
+#### Avk.dll Loader Rule — Obfuscated `\AVKTray.dat` Suffix
+
+Rule này nhắm vào thành phần loader `Avk.dll`. Trong quá trình thực thi, DLL sẽ tái tạo suffix tên file `\AVKTray.dat` từ một buffer UTF-16LE đã bị obfuscate. 11 wide character đầu tiên được decode bằng XOR `0xE8`, trong khi wide character cuối cùng được decode bằng XOR `0xAD`.
+
+Artifact này thuộc về giai đoạn loader DLL và không nên bị nhầm với các artifact runtime config của final payload.
 
 ```yara
-rule plugx_avk_chain_runtime_hunt
+rule plugx_avk_dll_loader_suffix_xor_e8_hunt
 {
     meta:
-        description = "Hunting hint for PlugX AVK/AVKTray chain runtime artifacts"
+        description = "Hunts PlugX AVK loader DLL using obfuscated AVKTray.dat suffix and DJB2 API hash constants"
         family = "PlugX"
         chain = "Avk.exe -> Avk.dll -> AVKTray.dat"
+        target = "Avk.dll"
         author = "nigmaz"
         confidence = "medium"
+        note = "XOR 0xE8/0xAD belongs to Avk.dll filename suffix decoding, not runtime config"
 
     strings:
         /*
-            AVKTray.dat suffix obfuscation hint.
-            Original wide string is decoded by XOR 0xE8,
-            with the last word XORed by 0xAD.
-            Verify this byte pattern per sample before using in production.
+            Obfuscated UTF-16LE string for:
+                \AVKTray.dat
+
+            Decode logic:
+                first 11 WCHARs XOR 0xE8
+                last WCHAR XOR 0xAD
+
+            Plaintext:
+                5C 00 41 00 56 00 4B 00 54 00 72 00 61 00 79 00 2E 00 64 00 61 00 74 00
+
+            Obfuscated:
+                B4 E8 A9 E8 BE E8 A3 E8 BC E8 9A E8 89 E8 91 E8 C6 E8 8C E8 89 E8 D9 AD
         */
-        $suffix_obf = { ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? E8 ?? AD }
+        $avktray_suffix_xor_e8 = {
+            B4 E8 A9 E8 BE E8 A3 E8 BC E8 9A E8
+            89 E8 91 E8 C6 E8 8C E8 89 E8 D9 AD
+        }
 
         /*
-            Runtime config hint:
-            RC4 key length = 6, key = "VOphJo".
-            This may be visible in decoded payload/config memory.
+            Export name used by Avk.exe.
+            This helps avoid matching random data blobs containing the suffix pattern.
         */
-        $rc4_key = "VOphJo" ascii
+        $export_modulemain = "ModuleMain" ascii
 
         /*
-            Runtime plaintext artifacts.
-            These are more suitable for memory scanning than on-disk scanning.
+            DJB2 hash constants used by the Stage 1 Avk.dll API resolver.
+            Stored in little-endian format.
         */
-        $mutex_a = "aumhYjQIQ" ascii
-        $mutex_w = "aumhYjQIQ" wide
+        $h_kernel32                 = { 75 EE 40 70 } // KERNEL32.DLL : 0x7040EE75
+        $h_ntdll                    = { ED B5 D3 22 } // ntdll.dll    : 0x22D3B5ED
 
-        $install_a = "%public%\\GData" ascii nocase
-        $install_w = "%public%\\GData" wide nocase
-
-        $c2_a = "fruitbrat.com" ascii
-        $c2_w = "fruitbrat.com" wide
-
-        $nt_prefix_w = "\\??\\" wide
+        $h_GetModuleFileNameW       = { 63 A1 B8 13 } // 0x13B8A163
+        $h_VirtualAlloc             = { 97 0F 2C 38 } // 0x382C0F97
+        $h_CreateEventW             = { B2 F1 01 5D } // 0x5D01F1B2
+        $h_SetEvent                 = { D3 BB 7E 87 } // 0x877EBBD3
+        $h_Sleep                    = { FE E5 19 0E } // 0x0E19E5FE
+        $h_NtCreateFile             = { DB EC A5 15 } // 0x15A5ECDB
+        $h_NtQueryInformationFile   = { 63 F8 25 47 } // 0x4725F863
+        $h_NtClose                  = { 3D 13 8E 8B } // 0x8B8E133D
+        $h_NtReadFile               = { E3 9A 97 2E } // 0x2E979AE3
+        $h_NtProtectVirtualMemory   = { C8 62 29 08 } // 0x082962C8
+        $h_RtlRegisterWait          = { 11 1C DA E4 } // 0xE4DA1C11
+        $h_RtlDeregisterWait        = { 9A 98 D8 C0 } // 0xC0D8989A
 
     condition:
-        /*
-            Use this against memory dumps or decoded payload dumps.
-            Do not rely on it for raw AVKTray.dat only.
-        */
-        3 of ($rc4_key, $mutex_*, $install_*, $c2_*, $nt_prefix_w)
+        uint16(0) == 0x5A4D and
+        $avktray_suffix_xor_e8 and
+        $export_modulemain and
+        6 of ($h_*)
 }
 ```
 
-Nếu muốn viết rule cho file on-disk `AVKTray.dat`, nên viết riêng theo cấu trúc file và decode stub, vì raw `.dat` không chứa đầy đủ plaintext artifacts.
+Rule này chính xác hơn so với việc đặt artifact `$avktray_suffix_xor_e8` vào rule runtime config, vì suffix bị obfuscate này là một phần của logic loader trong `Avk.dll`, không phải artifact của raw `AVKTray.dat` hoặc config đã giải mã của final payload.
 
 ---
 
-### XIII.4. Sigma idea - Windows Registry persistence
+#### Raw AVKTray.dat Rule — XOR `0x63` Container
 
-```yaml
-title: PlugX AVK Persistence Via HKCU Run G Data
-id: 7a7d8a34-avk-plugx-run-gdata
-status: experimental
-description: Detects PlugX-style persistence using HKCU Run value named "G Data" pointing to Avk.exe with two numeric filler arguments.
-references:
-  - Internal malware analysis report
-author: nigmaz
-date: 2026/01/01
-tags:
-  - attack.persistence
-  - attack.t1547.001
-  - attack.defense_evasion
-  - attack.t1036.005
-logsource:
-  product: windows
-  category: registry_set
-detection:
-  selection_run_key:
-    TargetObject|contains: '\Software\Microsoft\Windows\CurrentVersion\Run\G Data'
-  selection_value:
-    Details|re: '(?i)Avk\.exe"?\s+\d+\s+\d+'
-  condition: selection_run_key and selection_value
-falsepositives:
-  - Legitimate G DATA software should not normally create a Run value with Avk.exe followed by two numeric arguments from C:\Users\Public\GData.
-level: high
+Rule này nhắm vào raw `AVKTray.dat` trên disk. File này không phải là một PE bình thường tại offset `0x00`. Thay vào đó, embedded payload bắt đầu tại offset `0x0D` và được XOR-decode bằng key `0x63`.
+
+Sau khi decode, vùng entry của payload bắt đầu bằng một đoạn thunk nhỏ với các byte tương tự:
+
+```text
+4D 5A E8 00 00 00 00 ...
 ```
 
-Nếu log source đang dùng Windows Security Event ID `4657`, có thể dùng biến thể sau:
+Vì raw `.dat` lưu vùng này ở dạng đã XOR với `0x63`, rule sẽ match dạng encoded tại offset `0x0D`.
 
-```yaml
-title: PlugX AVK Persistence - HKCU Run G Data
-status: experimental
-logsource:
-  product: windows
-  service: security
-detection:
-  selection:
-    EventID: 4657
-    ObjectName|contains: 'CurrentVersion\Run'
-    ObjectValueName: "G Data"
-    NewValue|re: '(?i)Avk\.exe"?\s+\d+\s+\d+'
-  condition: selection
-level: high
+```yara
+rule plugx_avk_avktray_dat_xor63_container_hunt
+{
+    meta:
+        description = "Hunts raw AVKTray.dat container using XOR 0x63 encoded Stage 2 thunk"
+        family = "PlugX"
+        chain = "Avk.exe -> Avk.dll -> AVKTray.dat"
+        target = "raw AVKTray.dat"
+        author = "nigmaz"
+        confidence = "medium"
+        note = "For on-disk AVKTray.dat before XOR 0x63 decoding"
+
+    strings:
+        /*
+            Decoded bytes at file offset 0x0D are expected to begin like:
+
+                4D                dec ebp
+                5A                pop edx
+                E8 00 00 00 00    call $+5
+                5B                pop ebx
+                81 C3 09 0B 00 00 add ebx, 0xB09
+                FF D3             call ebx
+
+            Raw AVKTray.dat stores this region XORed with 0x63.
+        */
+        $xor63_stage2_entry_thunk = {
+            2E 39 8B 63 63 63 63 38 E2 A0 6A 68 63 63 9C B0
+        }
+
+    condition:
+        /*
+            Raw AVKTray.dat is not a normal PE at file offset 0.
+            The main encoded payload starts at 0x0D.
+            The decode stub/trailer begins around 0x9680D.
+        */
+        uint16(0) != 0x5A4D and
+        filesize > 0x9680D and
+        filesize < 0xA0000 and
+        $xor63_stage2_entry_thunk at 0x0D
+}
 ```
+
+Rule này được dùng để quét raw `AVKTray.dat` trên disk. Nó được tách riêng khỏi rule memory/config vì các artifact runtime plaintext không được kỳ vọng sẽ luôn xuất hiện rõ trước khi payload trong `.dat` được decode.
 
 ---
 
-### XIII.5. Hunting notes
+#### Runtime Configuration Rule — Memory / Decoded Payload / Decoded Config
+
+Rule này nhắm vào memory dump, decoded payload dump hoặc decoded configuration blob. Các artifact như mutex name, install path, C2 domain và RC4 key phù hợp hơn cho việc hunting trên memory hoặc dữ liệu đã decode, vì chúng có thể không xuất hiện ở dạng plaintext trong raw `AVKTray.dat`.
+
+```yara
+rule plugx_avk_runtime_config_memory_hunt
+{
+    meta:
+        description = "Hunts PlugX AVK runtime/config plaintext artifacts in memory or decoded dumps"
+        family = "PlugX"
+        chain = "Avk.exe -> Avk.dll -> AVKTray.dat -> final_payload"
+        target = "memory dump / decoded payload / decoded config"
+        author = "nigmaz"
+        confidence = "medium"
+        note = "Do not use this rule alone for raw AVKTray.dat"
+
+    strings:
+        /*
+            Runtime config / plaintext artifacts.
+            These are expected after XOR 0x63, RC4 VOphJo,
+            and per-field XOR decoding.
+        */
+        $rc4_key      = "VOphJo" ascii
+        $mutex        = "aumhYjQIQ" ascii wide
+        $install_path = "%public%\\GData" ascii wide nocase
+        $c2_domain    = "fruitbrat.com" ascii wide
+        $nt_prefix    = "\\??\\" wide
+
+    condition:
+        /*
+            Require multiple runtime artifacts together to reduce false positives.
+        */
+        3 of them
+}
+```
+
+Rule này không nên được dùng như một detector độc lập cho raw `AVKTray.dat`. Nó được thiết kế để quét memory dump, decoded payload dump hoặc các vùng nhớ sau khi malware đã decode configuration.
+
+---
+
+#### Practical Usage Notes
+
+Trong thực tế, các rule này nên được sử dụng theo từng giai đoạn phân tích:
+
+```text
+Use plugx_avk_dll_loader_suffix_xor_e8_hunt:
+    Khi quét Avk.dll hoặc các vùng memory chứa loader DLL.
+
+Use plugx_avk_avktray_dat_xor63_container_hunt:
+    Khi quét raw AVKTray.dat trên disk.
+
+Use plugx_avk_runtime_config_memory_hunt:
+    Khi quét memory dump, decoded payload dump hoặc decoded config blob.
+```
+
+Việc tách rule theo từng giai đoạn giúp tránh trộn lẫn artifact của loader stage với artifact của runtime configuration, đồng thời giúp rule dễ tinh chỉnh hơn khi hunting các biến thể PlugX/AVKTray có cấu trúc tương tự.
+
+---
+
+### XIII.4. Hunting notes
 
 Một số truy vấn/hướng hunt nên ưu tiên:
 
@@ -1058,6 +1162,8 @@ Mẫu này thể hiện một chain PlugX nhiều lớp, trong đó từng thàn
 Trong quá trình phân tích, mình cũng xây dựng một script extractor riêng cho chain này: `plx_config_extractor.py`. Script nhận trực tiếp `AVKTray.dat`, XOR-decode payload với key được truyền vào, trích xuất config blob từ `final_payload`, RC4-decode bằng key trong blob, sau đó XOR-decode từng UTF-16LE field để in ra config JSON. Flow này được mô tả ngay trong script: `AVKTray.dat -> XOR decode final_payload -> read encoded config blob -> RC4 first-stage decode -> XOR UTF-16LE field decode -> print config JSON`
 
 - File Python Extractor: [plx_config_extractor.py](https://github.com/nigmaz/nigmaz.github.io/blob/main/src/content/posts/apt-mustang-panda-plugx-2026/archived/plx_config_extractor.py).
+
+![alt text](./images/image-24.png)
 
 Script này có thể dùng để đối chiếu nhanh các mẫu PlugX/AVKTray khác có logic tương tự. Nếu sample mới vẫn giữ cấu trúc gần giống - ví dụ payload nằm trong `.dat` sau offset cố định, có config blob trong decoded payload, dùng RC4 + per-field XOR - thì chỉ cần điều chỉnh các constant như offset, size hoặc XOR key là có thể kiểm tra config, C2, mutex, install path và marker của biến thể mới.
 
