@@ -1,7 +1,7 @@
 ---
 title: Mustang Panda PlugX Analysis
 published: 2026-05-25
-description: MUSTANG PANDA x PLUGX - Sample analysis January 2026: Multi-layer execution chain from Browser_Updater to AVKTray.
+description: "MUSTANG PANDA x PLUGX - Sample analysis January 2026: Multi-layer execution chain from Browser_Updater to AVKTray."
 image: ./images/banner.png
 tags: ["APT", "APT Mustang Panda", "PlugX", "DLL Side-Loading"]
 category: "Malware Analysis"
