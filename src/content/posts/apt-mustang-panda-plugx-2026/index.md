@@ -1155,9 +1155,9 @@ signed-looking EXE
 
 ## XIV. Phụ lục D - Python Config Extractor cho PlugX/AVKTray
 
-Trong quá trình phân tích, mình cũng xây dựng một script extractor riêng cho chain này: `plx_config_extractor.py`. Script nhận trực tiếp `AVKTray.dat`, XOR-decode payload với key được truyền vào, trích xuất config blob từ `final_payload`, RC4-decode bằng key trong blob, sau đó XOR-decode từng UTF-16LE field để in ra config JSON. Flow này được mô tả ngay trong script: `AVKTray.dat -> XOR decode final_payload -> read encoded config blob -> RC4 first-stage decode -> XOR UTF-16LE field decode -> print config JSON`
+Trong quá trình phân tích, mình cũng xây dựng một script extractor riêng cho chain này: `"plx_config_extractor.py"`. Script nhận trực tiếp `AVKTray.dat`, XOR-decode payload với key được truyền vào, trích xuất config blob từ `final_payload`, RC4-decode bằng key trong blob, sau đó XOR-decode từng UTF-16LE field để in ra config JSON. Flow này được mô tả ngay trong script: `AVKTray.dat -> XOR decode final_payload -> read encoded config blob -> RC4 first-stage decode -> XOR UTF-16LE field decode -> print config JSON`
 
-- File Python Extractor: [plx_config_extractor.py](https://github.com/nigmaz/nigmaz.github.io/blob/main/src/content/posts/apt-mustang-panda-plugx-2026/archived/plx_config_extractor.py).
+<!-- - File Python Extractor: [plx_config_extractor.py](https://github.com/nigmaz/nigmaz.github.io/blob/main/src/content/posts/apt-mustang-panda-plugx-2026/archived/plx_config_extractor.py). -->
 
 ![alt text](./images/image-24.png)
 
