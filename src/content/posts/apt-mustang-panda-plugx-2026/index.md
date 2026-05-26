@@ -1153,11 +1153,7 @@ signed-looking EXE
 
 ---
 
-## Kết luận
-
-Mẫu này thể hiện một chain PlugX nhiều lớp, trong đó từng thành phần được tách vai trò rất rõ: `Avk.exe` là executable hợp pháp dùng làm vỏ sideload, `Avk.dll` là loader trung gian, còn `AVKTray.dat` là container chứa payload đã mã hóa. Khi nhìn riêng từng file, dấu hiệu độc hại không quá rõ ràng; nhưng khi nối chuỗi `Avk.exe -> Avk.dll -> AVKTray.dat -> final_payload`, có thể thấy đầy đủ các hành vi của một implant: self-install, persistence, mutex, client identity registry, proxy-aware WinHTTP C2 và command dispatch.
-
-Điểm quan trọng của mẫu này không chỉ nằm ở IOC như domain `fruitbrat[.]com`, mutex `aumhYjQIQ` hay RC4 key `VOphJo`, vì các giá trị này có thể bị thay đổi trong biến thể tiếp theo. Giá trị phòng thủ bền hơn nằm ở chain-level behavior: DLL sideloading, đọc payload dạng `.dat`, cấp quyền RWX, thực thi callback qua `RtlRegisterWait`, manual-map PE trong memory, sau đó ghi Run key với filler arguments để điều hướng `argc`.
+## XIV. Phụ lục D - Python Config Extractor cho PlugX/AVKTray
 
 Trong quá trình phân tích, mình cũng xây dựng một script extractor riêng cho chain này: `plx_config_extractor.py`. Script nhận trực tiếp `AVKTray.dat`, XOR-decode payload với key được truyền vào, trích xuất config blob từ `final_payload`, RC4-decode bằng key trong blob, sau đó XOR-decode từng UTF-16LE field để in ra config JSON. Flow này được mô tả ngay trong script: `AVKTray.dat -> XOR decode final_payload -> read encoded config blob -> RC4 first-stage decode -> XOR UTF-16LE field decode -> print config JSON`
 
@@ -1169,10 +1165,43 @@ Script này có thể dùng để đối chiếu nhanh các mẫu PlugX/AVKTray 
 
 > **Note cho việc đối chiếu biến thể:** Với các mẫu PlugX/AVKTray có logic tương tự, trước khi chạy extractor cần xác định lại tối thiểu ba giá trị theo từng sample:
 >
-> 1. `Payload start offset` - offset bắt đầu vùng payload encoded trong file `.dat`, ví dụ mẫu này là `0x6` hoặc `0xD` tùy biến thể.
-> 2. `Config offset in payload` - offset của config blob trong decoded payload, ví dụ `0x93418`; giá trị này có thể giữ nguyên ở một số mẫu cùng family/build.
+> 1. `Payload start offset` - offset bắt đầu vùng payload encoded trong file `.dat`, ví dụ mẫu này là `0xD` và có thể thay đổi tùy biến thể.
+> 2. `Config offset in payload` - offset của config blob trong decoded payload - "final_payload.bin", ví dụ mẫu này là `0x93418`; giá trị này có thể giữ nguyên ở một số mẫu cùng family/build.
 > 3. `XOR key` - key dùng để decode payload từ `.dat`, ví dụ `0x63` trong mẫu hiện tại.
 >
 > Nếu ba giá trị này sai, extractor vẫn có thể chạy nhưng payload decode ra sẽ không đúng, `MZ header` có thể không xuất hiện, hoặc config JSON sẽ lỗi/ra dữ liệu rác. Vì vậy khi phân tích biến thể mới, nên xác nhận lần lượt: `.dat offset -> XOR key -> decoded payload MZ -> config offset -> RC4/XOR config fields`.
 
-Tóm lại, hướng phân tích và detection hiệu quả nhất với mẫu này là đọc theo chain thay vì đọc theo từng file. IOC giúp triage nhanh, nhưng behavior chain và extractor config mới là phần hữu ích hơn để so sánh, hunting và theo dõi các biến thể tiếp theo.
+### XIV.1. Đối chiếu biến thể PlugX/AVKTray có cùng cấu trúc config
+
+Đầu tháng 05/2026, mình nhận được một sample được cho là biến thể PlugX nhắm vào Việt Nam. Sau khi kiểm tra sơ bộ các file thành phần và cách triển khai, mình nhận thấy biến thể này có cấu trúc khá tương đồng với mẫu PlugX/AVKTray đã phân tích ở các phần trên. Cụ thể, sample vẫn sử dụng mô hình `.dat` làm container chứa payload mã hóa, payload sau khi decode có PE header, và config blob được nhúng bên trong `final_payload`.
+
+Mình sử dụng lại `plx_config_extractor.py` để extract nhanh cấu hình của biến thể này. Quá trình đối chiếu tập trung vào ba tham số quan trọng cần xác định lại theo từng sample:
+
+- `Payload start offset`: `0x6`  
+  Offset bắt đầu vùng payload encoded trong file `AVKTray.dat`.
+
+- `Config offset in payload`: `0x93418`  
+  Offset của config blob bên trong payload sau khi đã được XOR-decode ra `final_payload.bin`.
+
+- `XOR key`: `0xA8`  
+  Key dùng để XOR-decode payload từ file `.dat`.
+
+Sau khi thay các giá trị trên, extractor có thể xử lý sample này theo cùng một flow với mẫu được ghi nhận vào tháng 01/2026: đọc `AVKTray.dat`, XOR-decode payload để tạo `final_payload.bin`, kiểm tra `MZ header`, trích xuất config blob tại offset `0x93418`, RC4-decode config, sau đó XOR-decode từng UTF-16LE field để in ra config JSON.
+
+![alt text](./images/image-25.png)
+
+Kết quả cho thấy extractor đã giải mã thành công các trường cấu hình như RC4 key, decoy document, mutex, install path, payload marker và danh sách C2. So với mẫu tháng 01/2026, biến thể này có thêm decoy document `TIN BUỒN.docx`, được sử dụng để đánh lừa và định hướng sự chú ý của người dùng trong quá trình thực thi.
+
+Layout config của biến thể này vẫn được giữ gần giống mẫu chính, nhưng các IOC cụ thể đã thay đổi. Ví dụ, RC4 key là `AcMF`, mutex là `VSDpqXedu`, payload marker là `507-2`, install path vẫn là `%public%\GData`, và C2 trỏ tới `dalerocks[.]com` qua port `443`.
+
+Điểm đáng chú ý là extractor không chỉ hữu ích với một sample cố định, mà còn có thể dùng để đối chiếu nhanh các biến thể PlugX/AVKTray có cùng cấu trúc config. Khi xác định đúng `payload start offset`, `config offset in payload` và `XOR key`, có thể nhanh chóng kiểm tra config, C2, mutex, install path và các marker quan trọng mà không cần phân tích lại toàn bộ chain từ đầu nhằm phục vụ quá trình xử lý sự cố.
+
+---
+
+## Kết luận
+
+Mẫu này thể hiện một chain PlugX nhiều lớp, trong đó từng thành phần được tách vai trò rõ ràng: `Avk.exe` là executable hợp pháp được lợi dụng làm vỏ sideload, `Avk.dll` đóng vai trò loader trung gian, còn `AVKTray.dat` là container chứa payload đã mã hóa. Khi phân tích riêng lẻ, từng file không bộc lộ đầy đủ hành vi độc hại; tuy nhiên khi ghép lại theo chuỗi `Avk.exe -> Avk.dll -> AVKTray.dat -> final_payload`, có thể quan sát được đầy đủ logic của một implant: self-install, persistence, mutex, client identity registry, proxy-aware WinHTTP C2 và command dispatch.
+
+Điểm đáng chú ý của mẫu này không chỉ nằm ở các IOC cụ thể như domain `fruitbrat[.]com`, mutex `aumhYjQIQ` hay RC4 key `VOphJo`, vì những giá trị này có thể dễ dàng thay đổi ở các biến thể. Giá trị phòng thủ bền hơn nằm ở hành vi tổng thể của chain: DLL sideloading, đọc payload từ file `.dat`, cấp quyền RWX, kích hoạt execution flow gián tiếp qua `RtlRegisterWait`, manual-map PE trong memory, sau đó thiết lập persistence qua Run key với filler arguments để điều hướng `argc`.
+
+Từ đó, hướng phân tích và detection hiệu quả nhất là theo dõi toàn bộ execution chain thay vì chỉ dựa vào từng artifact riêng lẻ. IOC vẫn hữu ích cho triage nhanh, nhưng behavior chain và khả năng trích xuất config mới là nền tảng quan trọng hơn để hunting, so sánh và theo dõi các biến thể PlugX/AVKTray tiếp theo.
