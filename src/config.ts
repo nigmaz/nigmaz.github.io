@@ -57,7 +57,7 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
   avatar: "assets/images/avatar.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
   name: "nigmaz",
-  bio: "Malware Analyst | Exploit Development | CTF Player (Pwn/RE)",
+  bio: "Malware Analyst | Exploit Development | CTF (Pwn/RE)",
   // bio: "Pwnable CTFs | Reverse Engineering | Malware Analysis | Vulnerability Research and Exploit Development",
   links: [
     {
