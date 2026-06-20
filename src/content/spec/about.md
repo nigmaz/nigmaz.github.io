@@ -4,7 +4,7 @@ This is the Blog by [nigmaz](https://github.com/nigmaz).
 
 ::github{repo="nigmaz/nigmaz.github.io"}
 
-> ### I'm studying and working in Cyber-Security, Focus Areas
+> ### Cybersecurity Specialist actively working and continuously developing expertise in offensive security and security research, including:
 >
 > - Pwnable CTFs
 > - Reverse Engineering
