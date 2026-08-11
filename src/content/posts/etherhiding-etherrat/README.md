@@ -11,16 +11,16 @@ lang: ""
 
 > **TL;DR.** Bài viết tổng hợp các chiến dịch và mẫu mã độc **lạm dụng blockchain trong cơ chế phân giải C2**, tập trung vào **EtherHiding và EtherRAT**, được ghi nhận đến ngày **06/08/2026** dựa trên kho dữ liệu [Unit42-timely-threat-intel](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel) của **Palo Alto Networks Unit 42**. Các trường hợp cho thấy Ethereum, BNB Smart Chain và Polygon được sử dụng như một lớp trung gian để lưu trữ, phân giải hoặc cập nhật địa chỉ C2 thay vì nhúng cố định hạ tầng điều khiển trực tiếp trong mã độc. Trong bài viết này, chiến dịch **[Fake IT Support Abuses Teams to Deliver EtherRAT](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel/blob/main/2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt)** ngày **28/06/2026** được lựa chọn làm **case study chính** để phân tích sâu chuỗi tấn công EtherRAT và làm rõ cách mã độc sử dụng **Ethereum smart contract như một cơ chế phân giải C2**, từ quá trình truy vấn dữ liệu on-chain, lấy C2 hiện tại cho đến việc kết nối tới hạ tầng điều khiển thực tế.
 
-| Ngày       | Báo cáo                                                                                                                           | Blockchain  | Cơ chế phân giải C2                                                                                                                                      |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-30 | [Remus Info-Stealer Uses Blockchain-Anchored C2](2026-07-30-Remus-Info-Stealer-Uses-Blockchain-Anchored-C2.txt)                   | Ethereum            | Truy vấn smart contract `0x999941b74F6bbc921D5174A5b29911562cd2D7CF` qua RPC `ethereum-rpc[.]publicnode[.]com`                                           |
-| 2026-07-21 | [Malicious npm/PyPI Supply Chain packages](2026-07-21-Malicious-npm-PyPI-Supply-Chain-packages.txt)                               | Ethereum mainnet    | Dropper **EtherHiding**; 2 contract của kẻ tấn công: `0x52221c293a21D8CA7AFD01Ac6bFAC7175D590A84`, `0xa1b40044EBc2794f207D45143Bd82a1B86156c6b`          |
-| 2026-07-02 | [ClickFix campaign utilizing MaaS kit with Blockchain C2](2026-07-02-ClickFix-campaign-utilizing-MaaS-kit-with-Blockchain-C2.txt) | **Polygon (MATIC)** | `tracker.js` tra cứu blockchain lấy URL C2 mã hóa base36; là 1 trong **4 lớp phân giải C2** độc lập                                                      |
-| 2026-06-28 | [Fake IT support abuses Teams to deliver EtherRAT](2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt)               | Ethereum            | Smart contract `0x6e044e19000487c4a6e6af15b4132a5561b5ee1f` + `0x788a5336c0ef70be87619a3c13a43050c426f7ec`; C2 dự phòng hardcode `necropatia[.]com`      |
-| 2026-05-22 | [RemusStealer Delivered via Software Search Redirection](2026-05-22-RemusStealer-Delivered-via-Software-Search-Redirection.txt)   | Ethereum            | ++Ethereum Dead Drop Resolver\*\* — cùng contract `0x999941b74F6bbc921D5174A5b29911562cd2D7CF` qua `eth[.]llamarpc[.]com`; loader Go làm rối bằng Garble |
-| 2026-04-13 | [LORIKAZZ ANDROID/IOT](2026-04-13-LORIKAZZ-ANDROID-IOT.txt)                                                                       | Ethereum (**ENS**)  | Chuỗi `"Empty ENS record"` trong ELF — chồng lấn mã nguồn với Kimwolf/AISURU                                                                             |
-| 2026-03-30 | [KIMWOLF V7 IoT](2026-03-30-KIMWOLF-V7-IoT.txt)                                                                                   | Ethereum (**ENS**)  | 5 RPC endpoint hardcode, phân giải tên miền **ENS** ra IP C2; backup C2 qua Tor .onion                                                                   |
-| 2024-09-04 | [EtherHiding popups still active](2024-09-04-IOCs-for-EtherHiding-popups.txt)                                                     | **BNB Smart Chain** | Kỹ thuật **EtherHiding** gốc — mã độc giấu trong smart contract, lấy qua `bsc-dataseed1.binance[.]org`; gắn với ClearFake/ClickFix                       |
+| Ngày       | Báo cáo                                                                                                                           | Blockchain          | Cơ chế phân giải C2                                                                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-07-30 | [Remus Info-Stealer Uses Blockchain-Anchored C2](2026-07-30-Remus-Info-Stealer-Uses-Blockchain-Anchored-C2.txt)                   | Ethereum            | Truy vấn smart contract `0x999941b74F6bbc921D5174A5b29911562cd2D7CF` qua RPC `ethereum-rpc[.]publicnode[.]com`                                         |
+| 2026-07-21 | [Malicious npm/PyPI Supply Chain packages](2026-07-21-Malicious-npm-PyPI-Supply-Chain-packages.txt)                               | Ethereum mainnet    | Dropper **EtherHiding**; 2 contract của kẻ tấn công: `0x52221c293a21D8CA7AFD01Ac6bFAC7175D590A84`, `0xa1b40044EBc2794f207D45143Bd82a1B86156c6b`        |
+| 2026-07-02 | [ClickFix campaign utilizing MaaS kit with Blockchain C2](2026-07-02-ClickFix-campaign-utilizing-MaaS-kit-with-Blockchain-C2.txt) | **Polygon (MATIC)** | `tracker.js` tra cứu blockchain lấy URL C2 mã hóa base36; là 1 trong **4 lớp phân giải C2** độc lập                                                    |
+| 2026-06-28 | [Fake IT support abuses Teams to deliver EtherRAT](2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt)               | Ethereum            | Smart contract `0x6e044e19000487c4a6e6af15b4132a5561b5ee1f` + `0x788a5336c0ef70be87619a3c13a43050c426f7ec`; C2 dự phòng hardcode `necropatia[.]com`    |
+| 2026-05-22 | [RemusStealer Delivered via Software Search Redirection](2026-05-22-RemusStealer-Delivered-via-Software-Search-Redirection.txt)   | Ethereum            | **Ethereum Dead Drop Resolver** - cùng contract `0x999941b74F6bbc921D5174A5b29911562cd2D7CF` qua `eth[.]llamarpc[.]com`; loader Go làm rối bằng Garble |
+| 2026-04-13 | [LORIKAZZ ANDROID/IOT](2026-04-13-LORIKAZZ-ANDROID-IOT.txt)                                                                       | Ethereum (**ENS**)  | Chuỗi `"Empty ENS record"` trong ELF - chồng lấn mã nguồn với Kimwolf/AISURU                                                                           |
+| 2026-03-30 | [KIMWOLF V7 IoT](2026-03-30-KIMWOLF-V7-IoT.txt)                                                                                   | Ethereum (**ENS**)  | 5 RPC endpoint hardcode, phân giải tên miền **ENS** ra IP C2; backup C2 qua Tor .onion                                                                 |
+| 2024-09-04 | [EtherHiding popups still active](2024-09-04-IOCs-for-EtherHiding-popups.txt)                                                     | **BNB Smart Chain** | Kỹ thuật **EtherHiding** gốc - mã độc giấu trong smart contract, lấy qua `bsc-dataseed1.binance[.]org`; gắn với ClearFake/ClickFix                     |
 
 ---
 
@@ -28,7 +28,7 @@ Tôi phân tích EtherRAT lần đầu khi đọc báo cáo ngày 28/06/2026 c�
 
 Từ IoC được Unit 42 tổng hợp, tôi tải `"v7.msi"` từ VirusTotal về - mẫu mã độc khởi đầu của cuộc tấn công, bóc từng lớp, phân tích và viết lại toàn bộ quá trình ở đây.
 
-> *Lưu ý: Tôi có sử dụng AI để hỗ trợ tổng hợp các ghi chú, nên bài viết có thể còn sai sót hoặc nội dung bị suy diễn mà tôi chưa phát hiện trong quá trình kiểm tra. Nếu nhận thấy điểm nào chưa chính xác, rất mong bạn đọc góp ý để tôi chỉnh sửa và hoàn thiện.*.
+> _Lưu ý: Tôi có sử dụng AI để hỗ trợ tổng hợp các ghi chú, nên bài viết có thể còn sai sót hoặc nội dung bị suy diễn mà tôi chưa phát hiện trong quá trình kiểm tra. Nếu nhận thấy điểm nào chưa chính xác, rất mong bạn đọc góp ý để tôi chỉnh sửa và hoàn thiện._.
 
 ![alt text](./images/image.png)
 
@@ -908,7 +908,7 @@ Progressive936.onmicrosoft[.]com
 
 ---
 
-<!-- # Hunting at Scale with BigQuery — giải thích chi tiết
+<!-- # Hunting at Scale with BigQuery - giải thích chi tiết
 
 Ghi chú phân tích mục _"Hunting at Scale with BigQuery"_ trong bài [A case of etherRat](https://www.aircag.xyz/blog/a-case-of-etherrat) của aircag, kèm phần dựng lại chữ ký hàm và một số bổ sung/hiệu chỉnh của tôi.
 
@@ -920,7 +920,7 @@ Toàn bộ mục này xoay quanh một nhận xét đơn giản nhưng rất m�
 
 > Địa chỉ contract thì thay đổi được, nhưng **mã của contract** thì để lại vân tay.
 
-Kẻ tấn công có thể deploy contract C2 mới mỗi tuần, mỗi chiến dịch, mỗi khách hàng. Mỗi lần deploy là một địa chỉ hoàn toàn khác — nếu bạn chỉ blocklist `0x788a5336...` thì bạn luôn đi sau một bước.
+Kẻ tấn công có thể deploy contract C2 mới mỗi tuần, mỗi chiến dịch, mỗi khách hàng. Mỗi lần deploy là một địa chỉ hoàn toàn khác - nếu bạn chỉ blocklist `0x788a5336...` thì bạn luôn đi sau một bước.
 
 Nhưng chúng deploy lại **cùng một đoạn code**. Và vì Ethereum công khai toàn bộ bytecode của mọi contract, ta có thể lật ngược vấn đề: thay vì săn địa chỉ, hãy săn **cấu trúc hàm**. Đó là điều mà hai selector `7d434425` và `7fcaf666` cho phép.
 
@@ -986,7 +986,7 @@ function getString(address) public view returns (string)
 function setString(string) public
 ```
 
-Về mặt lý thuyết, selector 4 byte có thể va chạm, nên một khớp đơn lẻ chưa phải bằng chứng tuyệt đối. Nhưng ở đây ta có **một cặp getter/setter đối xứng, cùng hậu tố `String`, khớp đồng thời** — xác suất đó là trùng hợp ngẫu nhiên gần như bằng không.
+Về mặt lý thuyết, selector 4 byte có thể va chạm, nên một khớp đơn lẻ chưa phải bằng chứng tuyệt đối. Nhưng ở đây ta có **một cặp getter/setter đối xứng, cùng hậu tố `String`, khớp đồng thời** - xác suất đó là trùng hợp ngẫu nhiên gần như bằng không.
 
 ### Hệ quả: contract này thực chất là gì
 
@@ -1006,16 +1006,16 @@ function getString(address who) public view returns (string memory) {
 }
 ```
 
-Đây là một chỉnh sửa quan trọng cho cách đọc IoC của EtherRAT. Trong bài phân tích trước, tôi mô tả `0x6e044e19000487c4a6e6af15b4132a5561b5ee1f` là "đối số tra cứu" — đúng nhưng chưa đủ. Với cấu trúc trên, ta biết chính xác nó là gì:
+Đây là một chỉnh sửa quan trọng cho cách đọc IoC của EtherRAT. Trong bài phân tích trước, tôi mô tả `0x6e044e19000487c4a6e6af15b4132a5561b5ee1f` là "đối số tra cứu" - đúng nhưng chưa đủ. Với cấu trúc trên, ta biết chính xác nó là gì:
 
 | Địa chỉ                                      | Vai trò thật                                                         |
 | -------------------------------------------- | -------------------------------------------------------------------- |
-| `0x788a5336c0ef70be87619a3c13a43050c426f7ec` | Contract lưu trữ — một string registry dùng chung                    |
-| `0x6e044e19000487c4a6e6af15b4132a5561b5ee1f` | **Ví của kẻ điều hành** — địa chỉ đã gọi `setString()` để ghi URL C2 |
+| `0x788a5336c0ef70be87619a3c13a43050c426f7ec` | Contract lưu trữ - một string registry dùng chung                    |
+| `0x6e044e19000487c4a6e6af15b4132a5561b5ee1f` | **Ví của kẻ điều hành** - địa chỉ đã gọi `setString()` để ghi URL C2 |
 
 Nói cách khác, `0x6e044e19...` không phải contract. Nó là **danh tính on-chain của operator**, và nó là một pivot point tốt hơn nhiều so với địa chỉ contract: contract có thể dùng chung bởi nhiều nhóm, nhưng ví ghi dữ liệu thì thuộc về một người.
 
-Điều này cũng giải thích vì sao tác giả bài gốc tìm được tới **74 contract** cùng vân tay. `getString`/`setString` là tên hết sức tổng quát — rất có thể một phần trong số đó là contract lưu trữ dùng chung, hoặc bản sao được deploy lại, chứ không phải mỗi cái là một chiến dịch riêng.
+Điều này cũng giải thích vì sao tác giả bài gốc tìm được tới **74 contract** cùng vân tay. `getString`/`setString` là tên hết sức tổng quát - rất có thể một phần trong số đó là contract lưu trữ dùng chung, hoặc bản sao được deploy lại, chứ không phải mỗi cái là một chiến dịch riêng.
 
 ---
 
@@ -1033,7 +1033,7 @@ Truy vấn bằng SQL chuẩn. Không cần chạy node, không cần API key, k
 
 ---
 
-## 5. Truy vấn thứ nhất — tìm contract
+## 5. Truy vấn thứ nhất - tìm contract
 
 ```sql
 SELECT address, bytecode
@@ -1044,13 +1044,13 @@ AND LOWER(bytecode) LIKE '%7fcaf666%'
 
 Đọc từng phần:
 
-- `FROM ...contracts` — quét toàn bộ contract từng tồn tại trên Ethereum mainnet.
-- `LOWER(bytecode)` — chuẩn hóa hoa/thường trước khi so khớp, vì hex có thể được lưu ở dạng khác nhau.
-- `LIKE '%7d434425%'` — tìm chuỗi selector **xuất hiện ở bất kỳ đâu** trong bytecode.
+- `FROM ...contracts` - quét toàn bộ contract từng tồn tại trên Ethereum mainnet.
+- `LOWER(bytecode)` - chuẩn hóa hoa/thường trước khi so khớp, vì hex có thể được lưu ở dạng khác nhau.
+- `LIKE '%7d434425%'` - tìm chuỗi selector **xuất hiện ở bất kỳ đâu** trong bytecode.
 
 Vì sao selector lại nằm trong bytecode? Vì trình biên dịch Solidity sinh ra một **function dispatcher** ở đầu mỗi contract: nó đọc 4 byte đầu của calldata rồi so sánh lần lượt với từng selector đã biết để nhảy tới đúng đoạn mã. Các selector do đó bị nhúng nguyên văn dưới dạng hằng số `PUSH4`.
 
-- `AND` giữa hai điều kiện là mấu chốt. Một selector đơn lẻ sẽ cho rất nhiều false positive — 4 byte hex có thể trùng ngẫu nhiên với dữ liệu hằng, địa chỉ, hoặc offset trong bytecode. Yêu cầu **cả getter lẫn setter cùng có mặt** làm xác suất trùng lặp giảm đi rất mạnh.
+- `AND` giữa hai điều kiện là mấu chốt. Một selector đơn lẻ sẽ cho rất nhiều false positive - 4 byte hex có thể trùng ngẫu nhiên với dữ liệu hằng, địa chỉ, hoặc offset trong bytecode. Yêu cầu **cả getter lẫn setter cùng có mặt** làm xác suất trùng lặp giảm đi rất mạnh.
 
 Kết quả: **74 contract**.
 
@@ -1058,7 +1058,7 @@ Kết quả: **74 contract**.
 
 Truy vấn trên chạy được nhưng có hai nhược điểm: `LIKE '%...%'` trên cột `bytecode` buộc BigQuery quét toàn bộ nội dung bytecode (rất tốn), và nó bắt cả những trường hợp selector chỉ tình cờ xuất hiện trong vùng dữ liệu chứ không phải trong dispatcher.
 
-Bảng `contracts` đã có sẵn cột `function_sighashes` — mảng các selector mà ethereum-etl **đã bóc tách đúng từ dispatcher**. Dùng nó vừa chính xác hơn vừa rẻ hơn:
+Bảng `contracts` đã có sẵn cột `function_sighashes` - mảng các selector mà ethereum-etl **đã bóc tách đúng từ dispatcher**. Dùng nó vừa chính xác hơn vừa rẻ hơn:
 
 ```sql
 SELECT
@@ -1077,7 +1077,7 @@ ORDER BY deployed_at;
 
 ---
 
-## 6. Truy vấn thứ hai — lấy lịch sử giao dịch
+## 6. Truy vấn thứ hai - lấy lịch sử giao dịch
 
 ```sql
 WITH etherrat_contracts AS (
@@ -1123,7 +1123,7 @@ Ba dòng `NOT LIKE` mới xuất hiện ở đây. Chúng loại bỏ các contr
 
 Lý do lọc: Ethereum có **hàng triệu** token contract. Nhiều token đi kèm các hàm metadata tùy biến, và một số thực sự có `getString`/`setString` để lưu tên, mô tả, URI. Nếu không loại ERC-20 ra, kết quả sẽ ngập trong token hợp pháp.
 
-Đây là mẫu tư duy đáng học: **định nghĩa cái mình tìm bằng cả những gì nó KHÔNG có.** Contract C2 của EtherRAT là một contract tối giản — nó lưu string, và không làm gì khác. Sự _vắng mặt_ của chức năng token chính là một phần của vân tay.
+Đây là mẫu tư duy đáng học: **định nghĩa cái mình tìm bằng cả những gì nó KHÔNG có.** Contract C2 của EtherRAT là một contract tối giản - nó lưu string, và không làm gì khác. Sự _vắng mặt_ của chức năng token chính là một phần của vân tay.
 
 Như đã nói ở mục 5, dùng `AND NOT is_erc20 AND NOT is_erc721` cho kết quả tương đương mà sạch hơn nhiều.
 
@@ -1149,7 +1149,7 @@ Gán nhãn ngữ nghĩa cho từng giao dịch, biến hex thô thành thứ đ�
 t.receipt_status AS success
 ```
 
-`1` = giao dịch thành công, `0` = revert. Đáng giữ lại: một chuỗi WRITE thất bại có thể cho thấy operator đang loay hoay với contract, sai tham số, hoặc hết gas — dấu vết vận hành thú vị.
+`1` = giao dịch thành công, `0` = revert. Đáng giữ lại: một chuỗi WRITE thất bại có thể cho thấy operator đang loay hoay với contract, sai tham số, hoặc hết gas - dấu vết vận hành thú vị.
 
 ---
 
@@ -1190,7 +1190,7 @@ WHERE to_address IN (SELECT address FROM etherrat_contracts)
 
 ## 8. Bước còn thiếu: giải mã URL C2 ra khỏi calldata
 
-Bài gốc dừng ở chỗ lấy được cột `calldata` thô. Nhưng URL C2 đang nằm ngay trong đó — chỉ cần decode theo chuẩn ABI.
+Bài gốc dừng ở chỗ lấy được cột `calldata` thô. Nhưng URL C2 đang nằm ngay trong đó - chỉ cần decode theo chuẩn ABI.
 
 Vì đã biết chữ ký là `setString(string)`, bố cục calldata hoàn toàn xác định:
 
@@ -1252,8 +1252,8 @@ ORDER BY block_timestamp DESC;
 
 Vài chỗ đáng lưu ý:
 
-- `SUBSTR(t.input, 123, 16)` — word `length` chiếm vị trí 75–138, nhưng một `uint256` không nhét vừa `INT64`. Vì độ dài chuỗi luôn nhỏ, 16 ký tự hex cuối (vị trí 123–138) là đủ và an toàn.
-- `SAFE_CONVERT_BYTES_TO_STRING` thay vì bản không `SAFE_` — nếu gặp byte không phải UTF-8 hợp lệ, nó trả `NULL` thay vì làm hỏng cả truy vấn.
+- `SUBSTR(t.input, 123, 16)` - word `length` chiếm vị trí 75–138, nhưng một `uint256` không nhét vừa `INT64`. Vì độ dài chuỗi luôn nhỏ, 16 ký tự hex cuối (vị trí 123–138) là đủ và an toàn.
+- `SAFE_CONVERT_BYTES_TO_STRING` thay vì bản không `SAFE_` - nếu gặp byte không phải UTF-8 hợp lệ, nó trả `NULL` thay vì làm hỏng cả truy vấn.
 - `str_len BETWEEN 1 AND 512` chặn các giá trị rác khiến `SUBSTR` sinh chuỗi khổng lồ.
 - `block_timestamp >= TIMESTAMP(...)` là **bắt buộc về mặt chi phí**. Bảng `transactions` được phân vùng theo `block_timestamp`; thiếu điều kiện này, bạn quét toàn bảng hàng terabyte.
 
@@ -1275,7 +1275,7 @@ GROUP BY to_address
 ORDER BY first_seen;
 ```
 
-Từ đây có thể lần tiếp: ví này được nạp gas từ đâu (thường là một sàn giao dịch — tức là có KYC), nó có deploy contract nào không, có ví nào khác cùng nguồn tài trợ không. Đây là địa hạt của blockchain forensics, và nó vượt xa những gì một mẫu `.msi` có thể cho biết.
+Từ đây có thể lần tiếp: ví này được nạp gas từ đâu (thường là một sàn giao dịch - tức là có KYC), nó có deploy contract nào không, có ví nào khác cùng nguồn tài trợ không. Đây là địa hạt của blockchain forensics, và nó vượt xa những gì một mẫu `.msi` có thể cho biết.
 
 ---
 
@@ -1289,7 +1289,7 @@ Từ đây có thể lần tiếp: ví này được nạp gas từ đâu (thư�
 | IoC hết hạn khi tác nhân đổi hạ tầng | Vân tay còn giá trị đến khi tác nhân viết lại contract |
 | Không truy được danh tính            | Có ví operator để pivot                                |
 
-Điểm mấu chốt là **tính bất biến**. Kẻ tấn công chọn blockchain vì không ai takedown được smart contract — nhưng chính đặc tính đó khiến mọi thao tác của chúng bị ghi lại vĩnh viễn, công khai, và có thể truy vấn bằng SQL. Sự đánh đổi này nghiêng về phía người phòng thủ nhiều hơn là kẻ tấn công tưởng.
+Điểm mấu chốt là **tính bất biến**. Kẻ tấn công chọn blockchain vì không ai takedown được smart contract - nhưng chính đặc tính đó khiến mọi thao tác của chúng bị ghi lại vĩnh viễn, công khai, và có thể truy vấn bằng SQL. Sự đánh đổi này nghiêng về phía người phòng thủ nhiều hơn là kẻ tấn công tưởng.
 
 ---
 
@@ -1298,13 +1298,13 @@ Từ đây có thể lần tiếp: ví này được nạp gas từ đâu (thư�
 **Về mặt kỹ thuật:**
 
 - `LIKE '%selector%'` trên bytecode bắt cả những lần selector xuất hiện tình cờ trong vùng dữ liệu. Dùng `function_sighashes` để tránh.
-- Cột `bytecode` là **runtime bytecode**, không phải creation bytecode. Contract dùng proxy (EIP-1167 minimal proxy, hoặc upgradeable proxy) sẽ có runtime bytecode rất ngắn và **không chứa selector nào** — chúng sẽ lọt lưới hoàn toàn.
+- Cột `bytecode` là **runtime bytecode**, không phải creation bytecode. Contract dùng proxy (EIP-1167 minimal proxy, hoặc upgradeable proxy) sẽ có runtime bytecode rất ngắn và **không chứa selector nào** - chúng sẽ lọt lưới hoàn toàn.
 - Contract đã `SELFDESTRUCT` có thể không còn trong bảng `contracts`, dù lịch sử giao dịch của nó vẫn còn trong `transactions`.
 - Chỉ phủ **Ethereum mainnet**. Theo bảng tổng hợp chiến dịch, EtherHiding đã dùng BNB Smart Chain và một MaaS kit đã dùng Polygon. BigQuery public dataset không có sẵn hai chain này ở cùng mức chi tiết.
 
 **Về mặt diễn giải:**
 
-- `getString`/`setString` là tên **rất tổng quát**. Trong 74 contract tìm được, nhiều khả năng có cả contract lưu trữ dùng chung hợp pháp. Cần xác nhận thêm — kiểm tra số lượng hàm, nội dung string đã ghi có phải URL không, mẫu giao dịch có giống hành vi vận hành C2 không — trước khi gọi một địa chỉ là "hạ tầng độc hại".
+- `getString`/`setString` là tên **rất tổng quát**. Trong 74 contract tìm được, nhiều khả năng có cả contract lưu trữ dùng chung hợp pháp. Cần xác nhận thêm - kiểm tra số lượng hàm, nội dung string đã ghi có phải URL không, mẫu giao dịch có giống hành vi vận hành C2 không - trước khi gọi một địa chỉ là "hạ tầng độc hại".
 - URL đọc được từ chain là **quan sát lịch sử**, không phải trạng thái hiện tại. Một URL từng được ghi năm 2025 có thể đã bị ghi đè từ lâu.
 
 **Về chi phí:**
@@ -1315,7 +1315,7 @@ Bảng `transactions` rất lớn. BigQuery tính tiền theo lượng dữ li�
 bq query --use_legacy_sql=false --dry_run 'SELECT ...'
 ```
 
-Và luôn thêm điều kiện `block_timestamp` để cắt partition, cùng việc chỉ `SELECT` những cột thực sự cần — `SELECT *` trên bảng này là cách nhanh nhất để đốt hết hạn mức.
+Và luôn thêm điều kiện `block_timestamp` để cắt partition, cùng việc chỉ `SELECT` những cột thực sự cần - `SELECT *` trên bảng này là cách nhanh nhất để đốt hết hạn mức.
 
 ---
 
@@ -1342,7 +1342,7 @@ WHERE t.to_address   = '0x788a5336c0ef70be87619a3c13a43050c426f7ec'
 ORDER BY t.block_timestamp DESC;
 ```
 
-Bốn URL Azure CloudApp mà Unit 42 công bố nhiều khả năng chỉ là một lát cắt. Truy vấn này sẽ cho **toàn bộ** danh sách, kèm timestamp chính xác từng lần đổi — đủ để dựng timeline vận hành của chiến dịch.
+Bốn URL Azure CloudApp mà Unit 42 công bố nhiều khả năng chỉ là một lát cắt. Truy vấn này sẽ cho **toàn bộ** danh sách, kèm timestamp chính xác từng lần đổi - đủ để dựng timeline vận hành của chiến dịch.
 
 Đổi `to_address` sang các contract trong bảng tổng hợp (`0x999941b7...` của Remus, hai contract EtherHiding trong chuỗi cung ứng npm/PyPI) là có ngay một quy trình săn tìm dùng chung cho cả họ mã độc blockchain-C2 này.
 
@@ -1351,10 +1351,10 @@ Bốn URL Azure CloudApp mà Unit 42 công bố nhiều khả năng chỉ là m�
 ## 13. Tóm tắt
 
 1. Selector là 4 byte đầu của `keccak256(chữ_ký_hàm)`, bị nhúng nguyên văn trong bytecode contract nên tìm được bằng SQL.
-2. Hai selector của EtherRAT là **`getString(address)`** và **`setString(string)`** — tôi dựng lại bằng brute-force sau khi xác thực Keccak-256 với các selector ERC-20 đã biết.
+2. Hai selector của EtherRAT là **`getString(address)`** và **`setString(string)`** - tôi dựng lại bằng brute-force sau khi xác thực Keccak-256 với các selector ERC-20 đã biết.
 3. Từ chữ ký suy ra kiến trúc: contract là `mapping(address => string)`, nên `0x6e044e19...` không phải contract mà là **ví của operator**.
 4. Cặp getter+setter làm vân tay; loại ERC-20 để khử nhiễu; ưu tiên `function_sighashes` hơn `LIKE` trên bytecode.
-5. **Chỉ thao tác ghi của operator hiện diện on-chain.** Bot đọc bằng `eth_call` nên hoàn toàn vô hình — nhánh `READ_C2_URL` trong truy vấn gốc thực tế không bao giờ khớp.
+5. **Chỉ thao tác ghi của operator hiện diện on-chain.** Bot đọc bằng `eth_call` nên hoàn toàn vô hình - nhánh `READ_C2_URL` trong truy vấn gốc thực tế không bao giờ khớp.
 6. Decode ABI trên `calldata` cho ra lịch sử C2 đầy đủ, kể cả các giá trị đã bị ghi đè.
 7. Cột `from_address` của các giao dịch ghi mở ra hướng pivot theo ví operator.
 
@@ -1362,7 +1362,7 @@ Bốn URL Azure CloudApp mà Unit 42 công bố nhiều khả năng chỉ là m�
 
 ## Phụ lục: script dựng lại selector
 
-Bản Keccak-256 thuần Python dùng ở mục 3, không phụ thuộc thư viện ngoài. Điểm cần nhớ là padding `0x01`/`0x80` của Keccak gốc — dùng `hashlib.sha3_256` sẽ cho kết quả sai hoàn toàn.
+Bản Keccak-256 thuần Python dùng ở mục 3, không phụ thuộc thư viện ngoài. Điểm cần nhớ là padding `0x01`/`0x80` của Keccak gốc - dùng `hashlib.sha3_256` sẽ cho kết quả sai hoàn toàn.
 
 ```python
 def keccak256(data: bytes) -> bytes:
@@ -1399,9 +1399,9 @@ assert selector("setString(string)")         == "7fcaf666"
 
 ## Tài liệu tham khảo
 
-- [aircag: A case of etherRat](https://www.aircag.xyz/blog/a-case-of-etherrat) — bài gốc
+- [aircag: A case of etherRat](https://www.aircag.xyz/blog/a-case-of-etherrat) - bài gốc
 - [BigQuery public dataset: crypto_ethereum](https://console.cloud.google.com/marketplace/details/ethereum/crypto-ethereum-blockchain)
-- [ethereum-etl — công cụ sinh ra bộ dữ liệu này](https://github.com/blockchain-etl/ethereum-etl)
-- [Solidity ABI specification — function selector & argument encoding](https://docs.soliditylang.org/en/latest/abi-spec.html)
-- [4byte.directory — cơ sở dữ liệu tra ngược selector](https://www.4byte.directory/)
+- [ethereum-etl - công cụ sinh ra bộ dữ liệu này](https://github.com/blockchain-etl/ethereum-etl)
+- [Solidity ABI specification - function selector & argument encoding](https://docs.soliditylang.org/en/latest/abi-spec.html)
+- [4byte.directory - cơ sở dữ liệu tra ngược selector](https://www.4byte.directory/)
 - [Contract 0x788a5336c0ef70be87619a3c13a43050c426f7ec trên Etherscan](https://etherscan.io/address/0x788a5336c0ef70be87619a3c13a43050c426f7ec) -->
