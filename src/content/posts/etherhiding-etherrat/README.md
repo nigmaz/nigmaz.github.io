@@ -223,6 +223,8 @@ exit
 
 # IV. Stage 2: JavaScript loader z0SYYdWk9g.dat
 
+## IV.1. Sumary analysis ".dat"
+
 Mặc dù mang phần mở rộng `.dat`, đây là JavaScript. Mở file ra thì phần lớn nội dung là object:
 
 ![alt text](./images/image-3.png)
@@ -359,7 +361,7 @@ Việc thứ ba là giải mã `.ini`.
 
 ---
 
-## IV.1. Giải mã payload
+## IV.2. Decrypt payload
 
 `eXYlcnebRLrWyBc.ini` không phải file cấu hình. Nó là ciphertext, và thuật toán giải mã không phải AES hay RC4 mà là một chuỗi biến đổi byte-by-byte tự chế. Với mỗi byte, loader thực hiện năm bước:
 
