@@ -713,7 +713,7 @@ Mỗi mạng blcokchain đều có explorer riêng phục vụ tra cứu Transac
 
 # VII. The bigger picture
 
-EtherRAT không phải trường hợp cá biệt. Khi rà lại kho [Unit42-timely-threat-intel](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel) tính đến 06/08/2026, tôi đếm được ít nhất tám chiến dịch dùng blockchain làm lớp phân giải C2:
+Khi rà lại repo Github [Unit42-timely-threat-intel](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel) tính đến 06/08/2026, có ít nhất tám chiến dịch dùng blockchain làm lớp phân giải C2:
 
 | Ngày       | Báo cáo                                                 | Blockchain          | Cơ chế phân giải C2                                                                                                               |
 | ---------- | ------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -748,9 +748,11 @@ Các giao dịch ghi giá trị vào contract sẽ chứa URL C2 dưới dạng 
 
 # VIII. Hunting and Detection
 
-Không IoC đơn lẻ nào đủ để kết luận. Node.js là runtime hợp pháp, `nodejs.org` là hạ tầng chính thức, RPC Ethereum công khai được dùng bởi hàng nghìn ứng dụng Web3 thật. Giá trị nằm ở việc nhiều hành vi đó xuất hiện nối thành chuỗi.
+Không IoC đơn lẻ nào đủ để đưa ra kết luận là mã độc xuất hiện trong hệ thống. Các hành vi như: `"Node.js"` là runtime hợp pháp, `"nodejs.org"` là hạ tầng chính thức, RPC Ethereum công khai được dùng bởi hàng nghìn ứng dụng Web3 thật. Giá trị nằm ở việc nhiều hành vi đó xuất hiện nối thành chuỗi.
 
-**Chuỗi tiến trình.** Đây là dấu hiệu mạnh nhất, đặc biệt khi bắt đầu từ một MSI trong thư mục người dùng hoặc `%TEMP%`:
+## VIII.1. Process Tree.
+
+Đây là dấu hiệu mạnh nhất, đặc biệt khi bắt đầu từ một MSI trong thư mục người dùng hoặc `%TEMP%`:
 
 ```text
 msiexec.exe
@@ -772,7 +774,9 @@ texuvTlV.exe -
 
 Riêng mẫu `node.exe -` hoặc `<bất kỳ>.exe -` sinh ra từ một tiến trình Node khác đã là bất thường đáng điều tra, độc lập với chiến dịch này. Lưu ý tên file trong mẫu này là ngẫu nhiên theo từng build, nên hãy hunting theo **hình dạng** của chuỗi chứ không phải chuỗi ký tự cụ thể.
 
-**Hệ thống tệp.** Tìm bộ ba `.cmd` + `.dat` + `.ini` có tên ngẫu nhiên nằm cùng một thư mục trong `%LOCALAPPDATA%`, kèm `1DIZ0D\node.exe` hoặc một `node.exe` được copy sang tên khác (Ba extensions này chỉ là phụ hoàn toàn có thể bị sửa đổi đối với các chiến dịch tấn công tương tự). Các artefact phụ:
+## VIII.2. File in system.
+
+Tìm bộ ba `.cmd` + `.dat` + `.ini` có tên ngẫu nhiên nằm cùng một thư mục trong `%LOCALAPPDATA%`, kèm `1DIZ0D\node.exe` hoặc một `node.exe` được copy sang tên khác (Ba extensions này chỉ là phụ hoàn toàn có thể bị sửa đổi đối với các chiến dịch tấn công tương tự). Các artefact phụ:
 
 ```text
 qNCplqpq                       tệp tạm của `where node`
@@ -783,7 +787,9 @@ qNCplqpq                       tệp tạm của `where node`
 
 Vì stage cuối đi qua stdin, ưu tiên thu thập **bộ nhớ tiến trình**, command-line và pipe telemetry. Chỉ sao chép file trên đĩa sẽ bỏ lỡ cả EtherRAT core lẫn task mà C2 đã gửi.
 
-**Mạng.** Chuỗi hành vi đặc trưng của một tiến trình Node ở đường dẫn bất thường:
+## VIII.3. Network. 
+
+Chuỗi hành vi đặc trưng của một tiến trình Node ở đường dẫn bất thường:
 
 1. POST JSON-RPC `eth_call` tới nhiều RPC Ethereum trong vài giây, với `to` = `0x788a5336c0ef70be87619a3c13a43050c426f7ec` và data bắt đầu bằng selector `0x7d434425`.
 2. Kết nối tới `necropatia[.]com` hoặc URL do contract trả về.
@@ -794,7 +800,9 @@ Bước 3 dễ viết rule nhất: một request tưởng như tải `.png` như
 
 Đừng chặn `nodejs.org`, Azure CloudApp hay các RPC công khai theo tên miền; khả năng false positive quá cao. Với dịch vụ dùng chung, hãy kết hợp process ancestry, đường dẫn binary, mẫu JSON-RPC, contract, header HTTP và tần suất polling. Các tên miền C2 đã xác nhận thì chặn riêng theo chính sách tổ chức.
 
-**Một lưu ý về persistence.** Unit 42 báo cáo Run key:
+## VIII.4. Một lưu ý về persistence.
+
+Unit 42 báo cáo Run key:
 
 ```text
 HKCU\Software\Microsoft\Windows\CurrentVersion\Run\OneDriveSetup
