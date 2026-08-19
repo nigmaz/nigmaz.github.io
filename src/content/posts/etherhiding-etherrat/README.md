@@ -39,6 +39,8 @@ Tổng quan những điểm chính thu được khi phân tích:
 - Địa chỉ C2 không hard-code. Bot gửi `eth_call` song song tới **bảy RPC Ethereum công khai**, decode kết quả thành một URL, và chỉ dùng `necropatia[.]com` khi tất cả nền tảng RPC của bên thứ ba đều thất bại.
 - EtherRAT core **không có sẵn chức năng nào** - không keylogger, không stealer. Nó chỉ polling C2 và thực thi bất kỳ JavaScript nào được trả về bằng `AsyncFunction`.
 
+![alt text](./images/image-6.png)
+
 Cùng tôi phân tích đào sâu hơn cuộc tấn công sử dụng kỹ thuật còn khá mới này.
 
 # I. Initial Access
