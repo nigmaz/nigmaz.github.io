@@ -4,7 +4,7 @@ This is the Blog by [nigmaz](https://github.com/nigmaz).
 
 ::github{repo="nigmaz/nigmaz.github.io"}
 
-> ### Cybersecurity Specialist actively working and continuously developing expertise in offensive security and security research, including:
+> ### Cybersecurity Specialist focused on offensive security and security research, with hands-on experience in:
 >
 > - Pwnable CTFs
 > - Reverse Engineering
