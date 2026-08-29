@@ -22,6 +22,8 @@ lang: ""
 | 2026-03-30 | [KIMWOLF V7 IoT](2026-03-30-KIMWOLF-V7-IoT.txt)                                                                                   | Ethereum (**ENS**)  | 5 RPC endpoint hardcode, phân giải tên miền **ENS** ra IP C2; backup C2 qua Tor .onion                                                                 |
 | 2024-09-04 | [EtherHiding popups still active](2024-09-04-IOCs-for-EtherHiding-popups.txt)                                                     | **BNB Smart Chain** | Kỹ thuật **EtherHiding** gốc - mã độc giấu trong smart contract, lấy qua `bsc-dataseed1.binance[.]org`; gắn với ClearFake/ClickFix                     |
 
+> Nguồn báo cáo của "PaloAltoNetworks": https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel/tree/main
+
 ---
 
 Tôi phân tích EtherRAT lần đầu khi đọc báo cáo ngày 28/06/2026 của Unit 42 (- https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel/blob/main/2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt -), trong đó attacker giả mạo bộ phận hỗ trợ IT gọi Microsoft Teams cho nạn nhân, xin quyền điều khiển màn hình, rồi tự tay gõ một lệnh `curl` để tải `v7.msi` về máy. Điều đáng chú ý không phải là phần khai thác social engineering - kiểu tấn công đó đã quá phổ biến - mà là dòng cuối cùng của báo cáo: payload không mang theo địa chỉ C2, nó lấy chuỗi C2 từ một smart contract trên Ethereum.
@@ -791,7 +793,7 @@ qNCplqpq                       tệp tạm của `where node`
 
 Vì stage cuối đi qua stdin, ưu tiên thu thập **bộ nhớ tiến trình**, command-line và pipe telemetry. Chỉ sao chép file trên đĩa sẽ bỏ lỡ cả EtherRAT core lẫn task mà C2 đã gửi.
 
-## VIII.3. Network. 
+## VIII.3. Network.
 
 Chuỗi hành vi đặc trưng của một tiến trình Node ở đường dẫn bất thường:
 
