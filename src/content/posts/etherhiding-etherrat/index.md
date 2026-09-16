@@ -1,13 +1,15 @@
 ---
-title: "Blockchain-Anchored C2: Technical Overview"
+title: "EtherHiding and EtherRAT: Blockchain as C2 Infrastructure"
 published: 2026-08-06
 description: "A review of blockchain-based C2 malware through August 6, 2026, based on Unit 42 Timely Threat Intel reports, with an in-depth analysis of a representative sample."
 image: ""
-tags: ["EtherRAT", "EtherHiding", "Blockchain"]
+tags: ["Blockchain"]
 category: "Malware Analysis"
 draft: false
 lang: ""
 ---
+
+> _Lưu ý: Đây là tài liệu thứ nhất được tôi tổng hợp và chuẩn bị cho Security Bootcamp 2026, tổ chức tại TP. Buôn Ma Thuột, tỉnh Đắk Lắk từ ngày 10–12/09/2026. Trong quá trình biên soạn, tôi có sử dụng AI để hỗ trợ tra cứu, hệ thống hóa và biên tập nội dung. Mặc dù đã kiểm tra lại các thông tin, tài liệu vẫn có thể còn thiếu sót hoặc nhận định chưa chính xác. Nếu có ai đó đọc bài viết này và thấy sai xót đâu đó, rất mong nhận được góp ý từ bạn đọc để tôi tiếp tục chỉnh sửa và hoàn thiện._
 
 > **TL;DR.** Bài viết tổng hợp các chiến dịch và mẫu mã độc **lạm dụng blockchain trong cơ chế phân giải C2**, tập trung vào **EtherHiding và EtherRAT**, được ghi nhận đến ngày **06/08/2026** dựa trên kho dữ liệu [Unit42-timely-threat-intel](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel) của **Palo Alto Networks Unit 42**. Các trường hợp cho thấy Ethereum, BNB Smart Chain và Polygon được sử dụng như một lớp trung gian để lưu trữ, phân giải hoặc cập nhật địa chỉ C2 thay vì nhúng cố định hạ tầng điều khiển trực tiếp trong mã độc. Trong bài viết này, chiến dịch **[Fake IT Support Abuses Teams to Deliver EtherRAT](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel/blob/main/2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt)** ngày **28/06/2026** được lựa chọn làm **case study chính** để phân tích sâu chuỗi tấn công EtherRAT và làm rõ cách mã độc sử dụng **Ethereum smart contract như một cơ chế phân giải C2**, từ quá trình truy vấn dữ liệu on-chain, lấy C2 hiện tại cho đến việc kết nối tới hạ tầng điều khiển thực tế.
 
@@ -29,8 +31,6 @@ lang: ""
 Tôi phân tích EtherRAT lần đầu khi đọc báo cáo ngày 28/06/2026 của Unit 42 (- https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel/blob/main/2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt -), trong đó attacker giả mạo bộ phận hỗ trợ IT gọi Microsoft Teams cho nạn nhân, xin quyền điều khiển màn hình, rồi tự tay gõ một lệnh `curl` để tải `v7.msi` về máy. Điều đáng chú ý không phải là phần khai thác social engineering - kiểu tấn công đó đã quá phổ biến - mà là dòng cuối cùng của báo cáo: payload không mang theo địa chỉ C2, nó lấy chuỗi C2 từ một smart contract trên Ethereum.
 
 Từ IoC được Unit 42 tổng hợp, tôi tải `"v7.msi"` từ VirusTotal về - mẫu mã độc khởi đầu của cuộc tấn công, bóc từng lớp, phân tích và viết lại toàn bộ quá trình ở đây.
-
-> _Lưu ý: Tôi có sử dụng AI để hỗ trợ tổng hợp các ghi chú, nên bài viết có thể còn sai sót hoặc nội dung bị suy diễn mà tôi chưa phát hiện trong quá trình kiểm tra. Nếu nhận thấy điểm nào chưa chính xác, rất mong bạn đọc góp ý để tôi chỉnh sửa và hoàn thiện._.
 
 ![alt text](./images/image.png)
 
@@ -907,10 +907,13 @@ Progressive936.onmicrosoft[.]com
 # X. References
 
 - [Unit 42: Fake IT support abuses Teams to deliver EtherRAT](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel/blob/main/2026-06-28-Fake-IT-support-abuses-Teams-to-deliver-EtherRAT.txt)
-- [Unit42-timely-threat-intel - kho báo cáo gốc](https://github.com/PaloAltoNetworks/Unit42-timely-threat-intel)
+
 - [Thông báo của Unit 42 trên LinkedIn](https://www.linkedin.com/posts/phishing-etherrat-ugcPost-7478229973678460928-PATm/)
+
 - [Thông báo của Unit 42 trên X](https://x.com/Unit42_Intel/status/2072464336040189959)
+
 - [Contract 0x788a5336c0ef70be87619a3c13a43050c426f7ec trên Etherscan](https://etherscan.io/address/0x788a5336c0ef70be87619a3c13a43050c426f7ec)
+
 - [aircag: A case of etherRat](https://www.aircag.xyz/blog/a-case-of-etherrat)
 
 <!-- - [Phân tích cục bộ Giai đoạn 1](IoC_Unit42/Stage1_R2YxSP2m_cmd.md)
