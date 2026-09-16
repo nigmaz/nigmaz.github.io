@@ -11,13 +11,7 @@ lang: ""
 
 > _Lưu ý: Đây là tài liệu thứ hai được tôi tổng hợp và chuẩn bị cho Security Bootcamp 2026, tổ chức tại TP. Buôn Ma Thuột, tỉnh Đắk Lắk từ ngày 10–12/09/2026. Trong quá trình biên soạn, tôi có sử dụng AI để hỗ trợ tra cứu, hệ thống hóa và biên tập nội dung. Mặc dù đã kiểm tra lại các thông tin, tài liệu vẫn có thể còn thiếu sót hoặc nhận định chưa chính xác. Nếu có ai đó đọc bài viết này và thấy sai xót đâu đó, rất mong nhận được góp ý từ bạn đọc để tôi tiếp tục chỉnh sửa và hoàn thiện._
 
-> **NullReceiver** là một kỹ thuật phân giải hạ tầng C2 (Command & Control) dựa trên blockchain, được nhóm tấn công liên hệ với **Triều Tiên (DPRK)** sử dụng trong chiến dịch **Contagious Interview**.
-
-> OpenSourceMalware đã xác định kỹ thuật này bên trong hai gói npm đã bị cài mã độc (`bianira-ui@1.27.0`, `fluid-type-ui@2.0.8`)
-> giả dạng plugin của Tailwind CSS. Thay vì nhúng con trỏ C2 vào calldata của smart contract (như cách EtherHiding làm),
-> mã độc **giải mã địa chỉ IP C2 trực tiếp từ các byte của địa chỉ người nhận** trong một giao dịch chuyển Ethereum thông thường,
-> **giá trị bằng 0, không có dữ liệu** - không smart contract, không calldata, không có gì để lấy dấu vân tay ngoài một giao dịch
-> ví-tới-ví trông y hệt mọi giao dịch khác.
+> **TL;DR.** "NullReceiver" là một kỹ thuật phân giải hạ tầng C2 (Command & Control) dựa trên blockchain, được nhóm tấn công liên hệ với **Triều Tiên (DPRK)** sử dụng trong chiến dịch **Contagious Interview**. Báo cáo từ OpenSourceMalware đã xác định kỹ thuật này bên trong hai gói npm đã bị cài mã độc (`bianira-ui@1.27.0`, `fluid-type-ui@2.0.8`) giả dạng plugin của Tailwind CSS. Thay vì nhúng con trỏ C2 vào calldata của smart contract (như cách EtherHiding làm), mã độc **giải mã địa chỉ IP C2 trực tiếp từ các byte của địa chỉ người nhận** trong một giao dịch chuyển Ethereum thông thường, **giá trị bằng 0, không có dữ liệu** - không smart contract, không calldata, không có gì để lấy dấu vân tay ngoài một giao dịch ví-tới-ví trông y hệt mọi giao dịch khác.
 
 ![alt text](./images/image-2.png)
 

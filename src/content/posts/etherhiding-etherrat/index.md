@@ -1,5 +1,5 @@
 ---
-title: "EtherHiding and EtherRAT: Blockchain as C2 Infrastructure"
+title: "EtherHiding and EtherRAT: Blockchain-Based C2"
 published: 2026-08-06
 description: "A review of blockchain-based C2 malware through August 6, 2026, based on Unit 42 Timely Threat Intel reports, with an in-depth analysis of a representative sample."
 image: ""
