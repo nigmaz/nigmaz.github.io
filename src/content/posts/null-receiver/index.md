@@ -385,6 +385,33 @@ Bình thường địa chỉ được suy ra từ khoá công khai (`keccak256(p
 
 Đây chính là cơ chế của các **burn address** như `0x000...dEaD`: chúng cũng chỉ là những địa chỉ không ai có key. Ethereum không có cơ chế "bounce back" hay báo lỗi như chuyển khoản ngân hàng sai số tài khoản.
 
+**"Bịa" không có nghĩa là "không hợp lệ".** Cần phân biệt hai chuyện: địa chỉ `0xa658863e...2121` **không được sinh ra từ một cặp khoá** nào, nhưng nó vẫn **đúng định dạng 20 byte** mà giao thức quy định. Node Ethereum xác thực giao dịch, trừ gas của ví gửi và ghi giao dịch vào block hoàn toàn bình thường - không có bước nào trong quá trình đó hỏi "địa chỉ này của ai". Khác biệt duy nhất nằm ở chiều ngược lại: không tồn tại private key nào ký được giao dịch _chi tiêu từ_ địa chỉ đó.
+
+> Có thể hình dung như một hòm thư đúc liền khối bê tông đặt ở rìa đường: vẫn có khe để bỏ thư vào, hệ thống vẫn nhận ra đó là một hòm thư, nhưng nó không có cửa và cũng không có chìa. Thư bỏ vào thì nằm lại đó vĩnh viễn.
+
+Vì vậy giới crypto gọi đây là **"ví chết"** hoặc **"hố đen"**, chứ không gọi là địa chỉ ảo hay địa chỉ không tồn tại.
+
+**Burn address được dùng hợp pháp như thế nào.** Cơ chế "gửi được, không rút được" này vốn là một công cụ bình thường: các dự án token chuyển tài sản tới địa chỉ như `0x000...dEaD` để loại vĩnh viễn một lượng token khỏi lưu thông (buyback and burn), tiêu huỷ phần token thừa sau đợt phát hành, hoặc chứng minh công khai rằng một giá trị đã bị loại bỏ. Địa chỉ `0x000...dEaD` được ưa dùng hơn địa chỉ zero (`0x000...000`) vì nhiều bản cài đặt ERC-20 phổ biến chặn thẳng thao tác chuyển token tới địa chỉ zero.
+
+Điểm đáng chú ý là **NullReceiver dùng chính cơ chế đó theo hướng ngược lại**:
+
+|                 | Burn address của dự án token                 | Địa chỉ nhận của NullReceiver            |
+| --------------- | -------------------------------------------- | ---------------------------------------- |
+| **Mục đích**    | Tiêu huỷ giá trị, giảm nguồn cung            | Lưu 20 byte dữ liệu lên sổ cái công khai |
+| **Số lượng**    | Một địa chỉ cố định, công khai, ai cũng biết | Địa chỉ mới cho mỗi lần cập nhật C2      |
+| **Giá trị gửi** | Lượng token thật, thường rất lớn             | `value = 0`                              |
+| **Tính chất**   | Là _đích đến_ của giao dịch                  | Là _nội dung_ của giao dịch              |
+
+Chính cột bên phải là thứ khiến kỹ thuật này khó săn: một địa chỉ burn cố định là cột mốc mà defender có thể theo dõi nhiều năm, còn địa chỉ dùng-một-lần thì không để lại cột mốc nào cho tới khi ví nguồn bị phát hiện.
+
+**Còn smart contract thì sao?** Contract cũng **không có private key** - địa chỉ của nó được sinh ra từ địa chỉ người triển khai và nonce (`CREATE`), hoặc từ salt và mã khởi tạo (`CREATE2`). Nhưng điều đó **không** biến mọi contract thành burn address: tài sản trong contract do **mã nguồn** quyết định, không do khoá quyết định.
+
+- Contract có hàm rút hoặc chuyển tiền và điều kiện được thoả mãn -> ETH đi ra bình thường. Toàn bộ DEX, liquidity pool và cầu nối đang vận hành theo đúng cách này.
+- Contract **không** có `receive()` hay `fallback()` payable -> giao dịch chuyển ETH thuần tới nó bị **revert**, tiền không rời khỏi ví người gửi.
+- Contract **nhận được** ETH nhưng **không có đường rút** (do lỗi lập trình, hoặc thư viện phụ thuộc bị `selfdestruct`) -> khi đó ETH mới thực sự kẹt vĩnh viễn, biến contract thành một burn address ngoài ý muốn. Vụ Parity Multisig tháng 11/2017 đóng băng một lượng lớn ETH theo đúng kịch bản này.
+
+Đặt cạnh nhau, ba khả năng trên cho thấy vì sao EtherHiding phải dùng contract còn NullReceiver thì không: EtherHiding cần một **nơi chứa dữ liệu đọc lại được** nên phải có contract với hàm getter, và mỗi lần cập nhật payload là một lần ghi trạng thái tốn gas. NullReceiver bỏ hẳn lớp đó - dữ liệu nằm trong chính trường `to`, và "nơi chứa" chỉ là lịch sử giao dịch vốn đã bất biến của chain.
+
 **Vì sao chọn `value = 0`:** mục tiêu không phải chuyển tiền mà là **ghi 20 byte kia lên blockchain công khai** để mã độc đọc lại. Gửi ETH thật sẽ vừa lãng phí (mỗi lần đổi C2 là đốt luôn một khoản không lấy lại được) vừa dễ lộ hơn (giao dịch có giá trị dễ lọt vào radar phân tích luồng tiền). Với `value = 0` và calldata rỗng, giao dịch chỉ tốn **21.000 gas** - mức sàn tuyệt đối gọi là _"hình thái giao dịch rẻ nhất có thể"_.
 
 Một chi tiết phụ: từ EIP-161 (Spurious Dragon), gửi 0 ETH tới một địa chỉ chưa từng có gì thậm chí **không tạo ra bản ghi nào** trong state trie. Giao dịch vẫn nằm vĩnh viễn trong lịch sử block (nên `eth_getTransaction*` vẫn đọc được trường `to`), nhưng không để lại dấu vết trong trạng thái hiện tại của chain.
@@ -447,5 +474,21 @@ Tóm lại, "địa chỉ bịa" không phải lỗ hổng trong kỹ thuật - 
 14. **Hamza K.** (SOC Analyst) - "NullReceiver: Blockchain C2 Resolution via Blank Ethereum Transfers",
     LinkedIn, 3 tháng 8, 2026. _(File PDF trong thư mục này.)_
     https://www.linkedin.com/pulse/nullreceiver-blockchain-c2-resolution-via-blank-ethereum-hamza-khella-5ygte/
+
+### Nguồn nền tảng blockchain (dùng cho phần Phụ lục)
+
+15. **Ethereum Foundation** - "Ethereum accounts" (phân biệt EOA và contract account,
+    cách sinh địa chỉ contract qua CREATE / CREATE2).
+    https://ethereum.org/en/developers/docs/accounts/
+
+16. **EIP-161** - "State trie clearing (invariant-preserving alternative)", Spurious Dragon hard fork.
+    https://eips.ethereum.org/EIPS/eip-161
+
+17. **Solidity Documentation** - `receive()` và `fallback()`: điều kiện để một contract nhận được ETH.
+    https://docs.soliditylang.org/en/latest/contracts.html#receive-ether-function
+
+18. **Parity Technologies** - "A Postmortem on the Parity Multi-Sig Library Self-Destruct",
+    15 tháng 11, 2017. _(Ví dụ điển hình về ETH bị khoá vĩnh viễn trong contract.)_
+    https://www.parity.io/blog/a-postmortem-on-the-parity-multi-sig-library-self-destruct/
 
 ---
